@@ -4,9 +4,6 @@
 " window engine to one of the custom commands from wince-commands.vim.
 " I did my best to cover all of them. If any slipped through, please let me
 " know!
-" TODO: Ensure all mappings behave similarly to their native counterparts when
-"       invoked from visual mode
-" TODO: Thoroughly test every mapping
 let s:Log = jer_log#LogFunctions('wince-mappings')
 
 if exists('g:wince_disable_mappings') && g:wince_disable_mappings

@@ -1,43 +1,20 @@
 " Wince Reference Definition for Loclist subwin
 let s:Log = jer_log#LogFunctions('wince-loclist-subwin')
 let s:Win = jer_win#WinFunctions()
-" TODO? Figure out why sometimes the syntax highlighting doesn't get applied -
-" probably fixed
 
-" This helper is used in the help uberwin
-function! WinceLoclistFieldForStatusline(fieldname)
-    call s:Log.DBG('WinceLoclistFieldForStatusline')
+if s:Win.legacy
+    finish
+endif
+
+" This helper is used here and also in the help uberwin
+function! wince_loclist#FieldForStatusLine(fieldname)
+    call s:Log.DBG('wince_loclist#FieldForStatusLine')
     return jer_util#SanitizeForStatusLine('', getloclist(win_getid(),{a:fieldname:0})[a:fieldname])
 endfunction
 
-if !exists('g:wince_enable_loclist') || !g:wince_enable_loclist
-    call s:Log.CFG('Loclist subwin disabled')
-    finish
-endif
-
-" WinceToIdentifyLoclist relies on getwininfo, and also on getloclist with the
-" winid key. So Vim-native winids are required. I see no other way to implement
-" WinceToIdentifyLoclist.
-if s:Win.legacy
-    call s:Log.ERR('The loclist subwin group is not supported with legacy winids')
-    finish
-endif
-
-if !exists('g:wince_loclist_top')
-    let g:wince_loclist_top = 0
-endif
-
-if !exists('g:wince_loclist_height')
-    let g:wince_loclist_height = 10
-endif
-
-if !exists('g:wince_loclist_statusline')
-    let g:wince_loclist_statusline = '%!WinceLoclistStatusLine()'
-endif
-
 " Callback that opens the location window for the current window
-function! WinceToOpenLoclist()
-    call s:Log.INF('WinceToOpenLoclist')
+function! wince_loclist#ToOpen()
+    call s:Log.INF('wince_loclist#ToOpen')
     let supwinid = win_getid()
 
     " Fail if the location window is already open
@@ -77,8 +54,8 @@ function! WinceToOpenLoclist()
 endfunction
 
 " Callback that closes the location list for the current window
-function! WinceToCloseLoclist()
-    call s:Log.INF('WinceToCloseLoclist')
+function! wince_loclist#ToClose()
+    call s:Log.INF('wince_loclist#ToClose')
     let supwinid = win_getid()
 
     " Fail if the location window is already closed
@@ -117,8 +94,8 @@ endfunction
 " Callback that returns {'typename':'loclist','supwin':<id>} if the supplied
 " winid is for a location window that is not the location window of a help
 " window
-function! WinceToIdentifyLoclist(winid)
-    call s:Log.DBG('WinceToIdentifyLoclist ', a:winid)
+function! wince_loclist#ToIdentify(winid)
+    call s:Log.DBG('wince_loclist#ToIdentify ', a:winid)
     let locwinnr = win_id2win(a:winid)
     if getwininfo(a:winid)[0]['loclist']
         for winnr in range(1,winnr('$'))
@@ -134,7 +111,7 @@ function! WinceToIdentifyLoclist(winid)
 endfunction
 
 " Returns the statusline of the location window
-function! WinceLoclistStatusLine()
+function! wince_loclist#StatusLine()
     call s:Log.DBG('LoclistStatusLine')
     let statusline = ''
 
@@ -145,10 +122,10 @@ function! WinceLoclistStatusLine()
     let statusline .= '%<'
 
     " Location list number
-    let statusline .= '%1*[%{WinceLoclistFieldForStatusline("title")}]'
+    let statusline .= '%1*[%{wince_loclist#FieldForStatusLine("title")}]'
 
     " Location list title (from the command that generated the list)
-    let statusline .= '%1*[%{WinceLoclistFieldForStatusline("nr")}]'
+    let statusline .= '%1*[%{wince_loclist#FieldForStatusLine("nr")}]'
 
     " Right-justify from now on
     let statusline .= '%=%<'
@@ -159,20 +136,10 @@ function! WinceLoclistStatusLine()
     return statusline
 endfunction
 
-" The location window is a subwin
-call wince_user#AddSubwinGroupType('loclist', ['loclist'],
-                          \[g:wince_loclist_statusline],
-                          \'L', 'l', 2,
-                          \50, [0], [1], !g:wince_loclist_top,
-                          \[-1], [g:wince_loclist_height],
-                          \function('WinceToOpenLoclist'),
-                          \function('WinceToCloseLoclist'),
-                          \function('WinceToIdentifyLoclist'))
-
 " For each supwin, make sure the loclist subwin exists if and only if that
 " supwin has a location list
-function! UpdateLoclistSubwins()
-    call s:Log.DBG('UpdateLoclistSubwins')
+function! wince_loclist#Update()
+    call s:Log.DBG('wince_loclist#Update')
     for supwinid in wince_model#SupwinIds()
         let locwinexists = wince_model#SubwinGroupExists(supwinid, 'loclist')
         let loclistexists = !empty(getloclist(supwinid))
@@ -191,22 +158,3 @@ function! UpdateLoclistSubwins()
     endfor
 endfunction
 
-" Update the loclist subwins after each resolver run, when the state and
-" model are certain to be consistent
-if !exists('g:wince_loclist_chc')
-    let g:wince_loclist_chc = 1
-    call jer_chc#Register(function('UpdateLoclistSubwins'), [], 1, 20, 1, 0, 1)
-    call wince_user#AddPostUserOperationCallback(function('UpdateLoclistSubwins'))
-endif
-
-" Mappings
-" No explicit mappings to add or remove. Those operations are done by
-" UpdateLoclistSubwins.
-if exists('g:wince_disable_loclist_mappings') && g:wince_disable_loclist_mappings
-    call s:Log.CFG('Loclist uberwin mappings disabled')
-else
-    call wince_map#MapUserOp('<leader>ls', 'call wince_user#ShowSubwinGroup(win_getid(), "loclist", 1)')
-    call wince_map#MapUserOp('<leader>lh', 'call wince_user#HideSubwinGroup(win_getid(), "loclist")')
-    call wince_map#MapUserOp('<leader>ll', 'let g:wince_map_mode = wince_user#GotoSubwin(win_getid(), "loclist", "loclist", g:wince_map_mode, 1)')
-    call wince_map#MapUserOp('<leader>lc', 'lexpr [] \| call UpdateLoclistSubwins()')
-endif

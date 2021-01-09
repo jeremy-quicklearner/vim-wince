@@ -1,23 +1,10 @@
-" Wince Reference Definition for Preview uberwin
+" Wince Reference Definition for Preview uberwin - Autoloaded portion
 let s:Log = jer_log#LogFunctions('wince-preview-uberwin')
 let s:Win = jer_win#WinFunctions()
 
-if !exists('g:wince_enable_preview') || !g:wince_enable_preview
-    call s:Log.CFG('Preview uberwin disabled')
-    finish
-endif
-
-if !exists('g:wince_preview_bottom')
-    let g:wince_preview_bottom = 0
-endif
-
-if !exists('g:wince_preview_statusline')
-    let g:wince_preview_statusline = '%!WincePreviewStatusLine()'
-endif
-
 " Callback that opens the preview window
-function! WinceToOpenPreview()
-    call s:Log.INF('WinceToOpenPreview')
+function! wince_preview#ToOpen()
+    call s:Log.INF('wince_preview#ToOpen')
     if empty(t:j_preview)
         throw 'Preview window has not been closed yet'
     endif
@@ -67,8 +54,8 @@ function! WinceToOpenPreview()
 endfunction
 
 " Callback that closes the preview window
-function! WinceToClosePreview()
-    call s:Log.INF('WinceToClosePreview')
+function! wince_preview#ToClose()
+    call s:Log.INF('wince_preview#ToClose')
     let previewwinid = 0
     for winnr in range(1, winnr('$'))
         if getwinvar(winnr, '&previewwindow', 0)
@@ -95,7 +82,7 @@ endfunction
 
 " Callback that returns 'preview' if the supplied winid is for the preview
 " window
-function! WinceToIdentifyPreview(winid)
+function! wince_preview#ToIdentify(winid)
     call s:Log.DBG('WinceToIdentifyPreview ', a:winid)
 
     let winnr = s:Win.id2win(a:winid)
@@ -111,7 +98,7 @@ function! WinceToIdentifyPreview(winid)
 endfunction
 
 " Returns the statusline of the preview window
-function! WincePreviewStatusLine()
+function! wince_preview#StatusLine()
     call s:Log.DBG('PreviewStatusLine')
     let statusline = ''
 
@@ -142,46 +129,12 @@ function! WincePreviewStatusLine()
     return statusline
 endfunction
 
-" The preview window is an uberwin
-call wince_user#AddUberwinGroupType('preview', ['preview'],
-                             \[g:wince_preview_statusline],
-                             \'P', 'p', 7,
-                             \30, [0],
-                             \[-1], [&previewheight],
-                             \function('WinceToOpenPreview'),
-                             \function('WinceToClosePreview'),
-                             \function('WinceToIdentifyPreview'))
-
 " Make sure terminal windows don't have &previewwindow set
-function! UpdatePreviewUberwin()
-    call s:Log.DBG('UpdatePreviewUberwin')
+function! wince_preview#Update()
+    call s:Log.DBG('wince_preview#Update')
     for winnr in range(1, winnr('$'))
         if getwinvar(winnr, '&buftype') ==# 'terminal'
             call setwinvar(winnr, '&previewwindow', 0)
         endif
     endfor
 endfunction
-if !exists('g:wince_preview_chc')
-    let g:wince_preview_chc = 1
-    call jer_chc#Register(function('UpdatePreviewUberwin'), [], 0, -70, 1, 0, 1)
-endif
-
-" The preview uberwin is intended to only ever be opened by native commands like
-" ptag and pjump - no user operations. Therefore the window engine code interacts
-" with it only via the resolver and WinceToOpenPreview only ever gets called when the
-" resolver closes and reopens the window. So the implementation of
-" WinceToOpenPreview assumes that WinceToClosePreview has recently been called.
-augroup WincePreview
-    autocmd!
-    autocmd VimEnter, TabNew * let t:j_preview = {}
-augroup END
-
-" Mappings
-if exists('g:wince_disable_preview_mappings') && g:wince_disable_preview_mappings
-    call s:Log.CFG('Preview uberwin mappings disabled')
-else
-    call wince_map#MapUserOp('<leader>ps', 'call wince_user#ShowUberwinGroup("preview", 1)')
-    call wince_map#MapUserOp('<leader>ph', 'call wince_user#HideUberwinGroup("preview")')
-    call wince_map#MapUserOp('<leader>pc', 'call wince_user#HideUberwinGroup("preview")')
-    call wince_map#MapUserOp('<leader>pp', 'let g:wince_map_mode = wince_user#GotoUberwin("preview", "preview", g:wince_map_mode, 1)')
-endif

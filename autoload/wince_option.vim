@@ -1,32 +1,9 @@
-" Wince Reference Definition for Option uberwin
+" Wince Reference Definition for Option uberwin - autoloaded portion
 let s:Log = jer_log#LogFunctions('wince-option-uberwin')
 let s:Win = jer_win#WinFunctions()
 
-if !exists('g:wince_enable_option') || !g:wince_enable_option
-    call s:Log.CFG('Option uberwin disabled')
-    finish
-endif
-
-" TODO? Close and reopen the option window whenever the current window
-"       changes, so as to update its record of window-local options
-"       - Probably not worth doing. The options and their possible values
-"         all stay the same anway - only the positions of the possible values
-"         would change
-
-if !exists('g:wince_option_right')
-    let g:wince_option_right = 0
-endif
-
-if !exists('g:wince_option_width')
-    let g:wince_option_width = 85
-endif
-
-if !exists('g:wince_option_statusline')
-    let g:wince_option_statusline = '%!WinceOptionStatusLine()'
-endif
-
 " Helper that silently jumps to t:prevwin and back
-function! WinceOptionGoPrev()
+function! wince_option#GoPrev()
     let prev = wince_model#PreviousWinInfo()
     let previd = wince_model#IdByInfo(prev)
     call wince_state#MoveCursorToWinidSilently(previd)
@@ -36,8 +13,8 @@ endfunction
 let s:sid = -1
 
 " Callback that opens the option window
-function! WinceToOpenOption()
-    call s:Log.INF('WinceToOpenOption')
+function! wince_option#ToOpen()
+    call s:Log.INF('wince_option#ToOpen')
     if bufwinnr('option-window') >=# 0
         throw 'Option window already open'
     endif
@@ -87,7 +64,8 @@ function! WinceToOpenOption()
     " extracted from optwin.vim's mappings (which we can read using mapcheck())
     " and re-injected into the replacement mappings
     " The noremap commands in optwin.vim run every time the 'options' command is
-    " invoked, so the new mappings need to be created on every WinceToOpenOption
+    " invoked, so the new mappings need to be created on every
+    " wince_option#ToOpen
     " call.
     if s:sid <# 0
         let crmap = mapcheck("<cr>")
@@ -95,9 +73,9 @@ function! WinceToOpenOption()
         let s:sid = '<SNR>_' . snr
     endif
 
-    execute 'noremap <silent> <buffer> <CR> <C-\><C-N>:call WinceOptionGoPrev()<CR>:call ' . s:sid . 'CR()<CR>'
-    execute 'inoremap <silent> <buffer> <CR> <Esc>:call WinceOptionGoPrev()<CR>:call ' . s:sid . 'CR()<CR>'
-    execute 'noremap <silent> <buffer> <Space> :call WinceOptionGoPrev()<CR>:call ' . s:sid . 'Space()<CR>'
+    execute 'noremap <silent> <buffer> <CR> <C-\><C-N>:call wince_option#GoPrev()<CR>:call ' . s:sid . 'CR()<CR>'
+    execute 'inoremap <silent> <buffer> <CR> <Esc>:call wince_option#GoPrev()<CR>:call ' . s:sid . 'CR()<CR>'
+    execute 'noremap <silent> <buffer> <Space> :call wince_option#GoPrev()<CR>:call ' . s:sid . 'Space()<CR>'
 
     let winid = s:Win.getid()
 
@@ -107,8 +85,8 @@ function! WinceToOpenOption()
 endfunction
 
 " Callback that closes the option window
-function! WinceToCloseOption()
-    call s:Log.INF('WinceToCloseOption')
+function! wince_option#ToClose()
+    call s:Log.INF('wince_option#ToClose')
     let optionwinid = 0
     for winnr in range(1, winnr('$'))
         if wince_state#GetBufnrByWinidOrWinnr(winnr) ==# bufnr('option-window')
@@ -126,15 +104,15 @@ endfunction
 
 " Callback that returns 'option' if the supplied winid is for the option
 " window
-function! WinceToIdentifyOption(winid)
-    call s:Log.DBG('WinceToIdentifyOption ', a:winid)
+function! wince_option#ToIdentify(winid)
+    call s:Log.DBG('wince_option#ToIdentify ', a:winid)
     if wince_state#GetBufnrByWinidOrWinnr(a:winid) ==# bufnr('option-window')
         return 'option'
     endif
     return ''
 endfunction
 
-function! WinceOptionStatusLine()
+function! wince_option#StatusLine()
     call s:Log.DBG('OptionStatusLine')
     let statusline = ''
 
@@ -174,22 +152,3 @@ function! WinceOptionStatusLine()
     return statusline
 endfunction
 
-" The option window is an uberwin
-call wince_user#AddUberwinGroupType('option', ['option'],
-                           \[g:wince_option_statusline],
-                           \'O', 'o', 6,
-                           \60, [0],
-                           \[g:wince_option_width], [-1],
-                           \function('WinceToOpenOption'),
-                           \function('WinceToCloseOption'),
-                           \function('WinceToIdentifyOption'))
-
-" Mappings
-if exists('g:wince_disable_option_mappings') && g:wince_disable_option_mappings
-    call s:Log.CFG('Option uberwin mappings disabled')
-else
-    call wince_map#MapUserOp('<leader>os', 'call wince_user#AddOrShowUberwinGroup("option")')
-    call wince_map#MapUserOp('<leader>oo', 'let g:wince_map_mode = wince_user#AddOrGotoUberwin("option","option",g:wince_map_mode)')
-    call wince_map#MapUserOp('<leader>oh', 'call wince_user#RemoveUberwinGroup("option")')
-    call wince_map#MapUserOp('<leader>oc', 'call wince_user#RemoveUberwinGroup("option")')
-endif

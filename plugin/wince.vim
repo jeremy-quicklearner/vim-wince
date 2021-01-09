@@ -116,8 +116,9 @@
 "     There is also a place for code that is common to the Resolver and User
 "     Operations.
 " 
-" Since the user operations are cumbersome as a UI, there are two UI components:
-
+" Since the user operations are cumbersome as a user interface, there are two
+" more components sitting on top of the user operations:
+"
 "     5 The Commands - A collection of custom commands that make calls to the
 "                      user operations
 "     6 The Mappings - A collection of mappings that replace native Vim window
@@ -152,13 +153,11 @@
 " - If the mappings are enabled, invoking a mapped command of the form
 "   <c-w>{nr}<cr> or z{nr}<cr> from visual or select mode will cause the
 "   mode indicator to disappear while {nr} is being typed in
-"   TODO? See if there's some way to avoid this
 "
 " - If the mappings are enabled, invoking a mapped command in visual or
 "   select mode will cause the mode indicator and highlighted area to
 "   flicker - even if the mapped command has no effect (e.g. <c-w>w when
 "   there's only one window)
-"   TODO? See if there's some way to avoid this
 "
 " - Compatibility with session reloading is dubious. In theory, the resolver is
 "   defensive enough to handle any and all possible changes to the state - but
@@ -170,12 +169,6 @@
 "   reference definition of the location list subwin group (see: wince-loclist.vim)
 "   handles the above case by closing all the
 "   supwins-that-were-subwins-in-a-previous-life.
-"    TODO: Write a plugin that persists the the location lists outside the
-"          session, and restores them after this happens
-"    TODO: Write a plugin that persists the the quickfix list outside the
-"          session, and restores it after this happens
-"    TODO: Investigate whether the undotree can be persisted outside the
-"          session and restored after this happens
 "
 " TODO? Preserve folds, signs, etc. when subwins and uberwins are hidden. Not
 "       sure if this is desirable - would they still be restored after
@@ -188,7 +181,7 @@
 "       asking for trouble.
 " TODO? Figure out why folds keep appearing in the help window on
 "       WinShowUberwin. Haven't seen this happen in some time - maybe it's
-"       fixed?
+"       fixed? Or maybe I just don't use folds enough to see it
 " TODO? Think of a way to avoid creating a new buffer every time a subwin is
 "       afterimaged
 "       - Only real reason to do this is to avoid buffer numbers getting
@@ -211,12 +204,13 @@
 "       - The internal error is caught now, but it seems to add ranges to
 "         a bunch of commands that run after it gets caught
 "       - All the statuslines and tabline get cleared
+
 " TODO: Audit all the core code for references to specific group types
 " TODO: Audit all the user operations and common code for direct accesses to
 "       the state and model
 " TODO: Audit the common code for functions that are not common to the
 "       resolver and user operations
-" TODO: Audit all the asserts for redundancy
+" TODO: Autoload in three waves - startup, CursorHold, the rest
 " TODO: Comment out every logging statement that gets skipped by the default
 "       levels. Write some kind of awk or sed script that uncomments and
 "       recomments them
@@ -226,19 +220,16 @@
 " TODO: Audit all files for insufficient documentation
 " TODO: Audit all files for lines longer than 80 characters
 " TODO: Audit all files for 'endfunction!'
-" TODO: Move the whole thing to a plugin
-" TODO: Autoload where appropriate
-" TODO: Audit the undotree reference definition for performance improvements
-" TODO: Move undotree subwin to its own plugin so that the window engine
-"       doesn't depend on mbbill/undotree
-" TODO? Rewrite as much as possible using vim9script
+" TODO: Write docs
 
+" Dependency on vim-jersuite-core for logging, legacy winids, and
+" miscellaneous utilities
 JerCheckDep wince
 \           jersuite_core
 \           github.com/jeremy-quicklearner/vim-jersuite-core
 \           1.1.3
 \           2.0.0
-let g:wince_version = 0.1.0
+let g:wince_version = 0.2.0
 call jer_log#LogFunctions('jersuite').CFG('wince version ',
                                          \ g:jersuite_core_version)
 
@@ -258,18 +249,23 @@ call jer_log#SetLevel('wince-quickfix-uberwin', 'CFG', 'WRN')
 call jer_log#SetLevel('wince-option-uberwin',   'CFG', 'WRN')
 call jer_log#SetLevel('wince-loclist-subwin',   'CFG', 'WRN')
 
-" Wince UI
+" Commands, mappings, and reference definitions are not fully autoloaded
 source <sfile>:p:h:h/src/cmd.vim
 source <sfile>:p:h:h/src/map.vim
 
 " Reference Definitions
-source <sfile>:p:h:h/src/wince-help.vim
-source <sfile>:p:h:h/src/wince-preview.vim
-source <sfile>:p:h:h/src/wince-quickfix.vim
-source <sfile>:p:h:h/src/wince-option.vim
-source <sfile>:p:h:h/src/wince-loclist.vim
+source <sfile>:p:h:h/src/help.vim
+source <sfile>:p:h:h/src/preview.vim
+source <sfile>:p:h:h/src/quickfix.vim
+source <sfile>:p:h:h/src/option.vim
+source <sfile>:p:h:h/src/loclist.vim
 
-" The resolver should run after any changes to the state
+" Enforce correct statuslines
+source <sfile>:p:h:h/src/statusline.vim
+
+" Setup the resolver to run on the CursorHold autocmd event, after any changes to
+" the state. Use the priority value 0 - every other CursorHold callback's
+" priority is decided by its relationship with the resolver
 if !exists('g:wince_resolve_chc')
     let g:wince_resolve_chc = 1
     call jer_chc#Register(function('wince_resolve#Resolve'), [], 1, 0, 1, 0, 1)
@@ -283,8 +279,10 @@ augroup Wince
 
     " Run the resolver when Vim is resized
     autocmd VimResized * call wince_resolve#Resolve()
-
 augroup END
+
+" TODO? raise an error in an 'after' script if any of these options have
+" different values
 
 " Don't equalize window sizes when windows are closed
 set noequalalways
@@ -294,6 +292,3 @@ set winheight=1
 set winwidth=1
 set winminheight=1
 set winminheight=1
-
-" TODO: raise an error in an 'after' script if any of these options have
-" different values

@@ -1,8 +1,5 @@
 " Wince Commands
 " See wince.vim
-" TODO: Ensure all commands behave similarly to their native counterparts when
-"       invoked from visual mode
-" TODO: Thoroughly test every command
 let s:Log = jer_log#LogFunctions('wince-commands')
 
 function! s:Define(cmdname, wincmd, defaultcount,
