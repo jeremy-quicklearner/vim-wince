@@ -229,9 +229,9 @@ JerCheckDep wince
 \           github.com/jeremy-quicklearner/vim-jersuite-core
 \           1.1.3
 \           2.0.0
-let g:wince_version = 0.2.0
+let g:wince_version = '0.2.1'
 call jer_log#LogFunctions('jersuite').CFG('wince version ',
-                                         \ g:jersuite_core_version)
+                                         \ g:wince_version)
 
 " Logging facilities
 call jer_log#SetLevel('wince-model',   'CFG', 'WRN')
