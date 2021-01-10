@@ -1,5 +1,12 @@
 " Wince code common to resolver and user operations
 " See wince.vim
+
+" Avoid loading twice
+if exists('s:loaded')
+    finish
+endif
+let s:loaded = 0
+
 let s:Log = jer_log#LogFunctions('wince-common')
 
 " Returns a data structure that encodes information about the window that the

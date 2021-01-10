@@ -1,4 +1,11 @@
 " Wince Mappings - Autoloaded portion
+
+" Avoid loading twice
+if exists('s:loaded')
+    finish
+endif
+let s:loaded = 0
+
 " See wince.vim
 let s:Log = jer_log#LogFunctions('wince-mappings')
 

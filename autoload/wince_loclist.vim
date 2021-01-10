@@ -1,4 +1,11 @@
 " Wince Reference Definition for Loclist subwin
+
+" Avoid loading twice
+if exists('s:loaded')
+    finish
+endif
+let s:loaded = 0
+
 let s:Log = jer_log#LogFunctions('wince-loclist-subwin')
 let s:Win = jer_win#WinFunctions()
 

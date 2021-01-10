@@ -222,6 +222,12 @@
 " TODO: Audit all files for 'endfunction!'
 " TODO: Write docs
 
+" Avoid loading twice
+if exists('s:loaded')
+    finish
+endif
+let s:loaded = 0
+
 " Dependency on vim-jersuite-core for logging, legacy winids, and
 " miscellaneous utilities
 JerCheckDep wince
@@ -229,7 +235,7 @@ JerCheckDep wince
 \           github.com/jeremy-quicklearner/vim-jersuite-core
 \           1.1.3
 \           2.0.0
-let g:wince_version = '0.2.1'
+let g:wince_version = '0.2.2'
 call jer_log#LogFunctions('jersuite').CFG('wince version ',
                                          \ g:wince_version)
 

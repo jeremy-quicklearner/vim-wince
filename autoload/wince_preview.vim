@@ -1,4 +1,11 @@
 " Wince Reference Definition for Preview uberwin - Autoloaded portion
+
+" Avoid loading twice
+if exists('s:loaded')
+    finish
+endif
+let s:loaded = 0
+
 let s:Log = jer_log#LogFunctions('wince-preview-uberwin')
 let s:Win = jer_win#WinFunctions()
 

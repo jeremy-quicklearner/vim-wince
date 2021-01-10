@@ -1,4 +1,11 @@
 " Wince State
+
+" Avoid loading twice
+if exists('s:loaded')
+    finish
+endif
+let s:loaded = 0
+
 " See wince.vim
 " Essentially, this file's contents act as a wrapper over the Vim's native
 " window commands. The rest of the Wince core can only run those commands via
