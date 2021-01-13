@@ -839,7 +839,8 @@ let s:preservedwinopts = [
 \    'arabic',
 \    'iminsert',
 \    'imsearch',
-\    'signcolumn'
+\    'signcolumn',
+\    'wincolor'
 \]
 
 " Preserve/Restore for individual windows
@@ -859,6 +860,9 @@ function! wince_state#PreCloseAndReopen(winid)
     " Preserve options
     let retdict.opts = {}
     for optname in s:preservedwinopts
+        if !exists('&' . optname)
+            continue
+        endif
         let optval = eval('&l:' . optname)
         call s:Log.VRB('Preserve ', optname, ': ', optval)
         let retdict.opts[optname] = optval
