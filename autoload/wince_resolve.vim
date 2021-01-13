@@ -910,7 +910,7 @@ function! wince_resolve#Resolve()
     endtry
 endfunction
 
-" Since the resolver runs as a CursorHold callback, autocmd events
+" Since the resolver runs as a post-event callback, autocmd events
 " need to be explicitly signalled to it
 augroup WinceResolve
     autocmd!

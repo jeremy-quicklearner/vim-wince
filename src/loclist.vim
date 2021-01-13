@@ -42,7 +42,7 @@ call wince_user#AddSubwinGroupType('loclist', ['loclist'],
 " model are certain to be consistent
 if !exists('g:wince_loclist_chc')
     let g:wince_loclist_chc = 1
-    call jer_chc#Register(function('wince_loclist#Update'), [], 1, 20, 1, 0, 1)
+    call jer_pec#Register(function('wince_loclist#Update'), [], 1, 20, 1, 0, 1)
     call wince_user#AddPostUserOperationCallback(function('wince_loclist#Update'))
 endif
 

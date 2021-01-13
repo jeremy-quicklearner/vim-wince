@@ -447,6 +447,8 @@ function! wince_state#CloseSubwinsByGroupType(supwinid, grouptype)
     call s:MaybeRedraw()
 endfunction
 
+" TODO: Vim 8.2+ (and possible 8.1) has a bug here with sign priorities. Use
+" this bug to make sure automated testing can catch bugs, then fix the bug
 function! s:PreserveSigns(winid)
     call s:Log.VRB('PreserveSigns ', a:winid)
     let preserved = split(execute('sign place buffer=' . s:Win.bufnr(a:winid)), '\n')

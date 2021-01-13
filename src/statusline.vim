@@ -5,19 +5,15 @@
 " TODO: Someone may want different supwins to have different statuslines.
 " Store supwin statuslines in the model and write a setter in the user
 " operations
-function! s:SetSpecificStatusLine()
-    execute 
-endfunction
-
 function! s:CorrectAllStatusLines()
     noautocmd silent call jer_util#WinDo('',
    \    'let &l:statusline = wince_user#NonDefaultStatusLine()'
    \)
 endfunction
 
-" Register the above function to be called on the next CursorHold event
+" Register the above function as a one-time post-event callback
 function! s:RegisterCorrectStatusLines()
-    call jer_chc#Register(function('s:CorrectAllStatusLines'), [], 0, 1, 0, 0, 0)
+    call jer_pec#Register(function('s:CorrectAllStatusLines'), [], 0, 1, 0, 0, 0)
 endfunction
 
 augroup WinceStatusLine

@@ -26,7 +26,7 @@ call wince_user#AddUberwinGroupType('preview', ['preview'],
 
 if !exists('g:wince_preview_chc')
     let g:wince_preview_chc = 1
-    call jer_chc#Register(function('wince_preview#Update'), [], 0, -70, 1, 0, 1)
+    call jer_pec#Register(function('wince_preview#Update'), [], 0, -70, 1, 0, 1)
 endif
 
 " The preview uberwin is intended to only ever be opened by native commands like

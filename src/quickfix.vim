@@ -54,7 +54,7 @@ augroup WinceQuickfix
     " windows. This breaks the assumption that there is only ever one quickfix
     " window, which the Quickfix uberwin definition relies on. To be safe, invoke
     " cclose in every tab until there are no quickfix windows. 
-    autocmd SessionLoadPost * call jer_util#TabDo('', 'call jer_chc#Register(function("wince_quickfix#CloseDangling"), [], 1, -99, 0, 0, 0)')
+    autocmd SessionLoadPost * call jer_util#TabDo('', 'call jer_pec#Register(function("wince_quickfix#CloseDangling"), [], 1, -99, 0, 0, 0)')
 augroup END
 
 " Mappings

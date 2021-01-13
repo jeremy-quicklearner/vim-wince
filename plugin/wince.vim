@@ -108,10 +108,11 @@
 " assumption. All it takes to ruin the consistency is a single invocation of
 " something like 'wincmd r' in a plugin. That's why there's a 4th core component:
 "
-"     4 The Resolver - an algorithm which runs on the CursorHold autocmd event and
-"                      guarantees on completion that the model and state are
-"                      consistent with each other, even if they were inconsistent
-"                      when the resolver started
+"     4 The Resolver - an algorithm that guarantees on completion that the model
+"                      and state are consistent with each other, even if they
+"                      were inconsistent when the resolver started. Runs under
+"                      autocmds that fire after any event that could introduce
+"                      an inconsistency between the state and model
 "
 "     There is also a place for code that is common to the Resolver and User
 "     Operations.
@@ -133,7 +134,12 @@
 " model consistent. Scripts may also use the user operations for more
 " fine-grained control. If anything goes wrong and the state and model become
 " inconsistent, the resolver will quickly swoop in and fix the inconsistency
-" anyway. If updatetime is set to a small enough value, the inconsistency is
+" anyway.
+" In versions of Vim without the SafeState autocmd event (i.e. pre-8.1),
+" The resolver is registered under the CursorHold autocmd event. This event
+" fires after Vim has been sitting idle long enough (outside of Insert mode).
+" How long exactly depends on the value of the 'updatetime' option.
+" If updatetime is set to a small enough value, the inconsistency is
 " visible only for a split second. I recommend an updatetime of 100, as I've
 " found that anything shorter can sometimes lead to weird race conditions
 "
@@ -205,12 +211,13 @@
 "         a bunch of commands that run after it gets caught
 "       - All the statuslines and tabline get cleared
 
+" TODO: Only run the resolver inside user operations with reloyonresolver if
+"       there's no SafeState
 " TODO: Audit all the core code for references to specific group types
 " TODO: Audit all the user operations and common code for direct accesses to
 "       the state and model
 " TODO: Audit the common code for functions that are not common to the
 "       resolver and user operations
-" TODO: Autoload in three waves - startup, CursorHold, the rest
 " TODO: Comment out every logging statement that gets skipped by the default
 "       levels. Write some kind of awk or sed script that uncomments and
 "       recomments them
@@ -233,9 +240,9 @@ let s:loaded = 0
 JerCheckDep wince
 \           jersuite_core
 \           github.com/jeremy-quicklearner/vim-jersuite-core
-\           1.1.3
+\           1.2.0
 \           2.0.0
-let g:wince_version = '0.2.2'
+let g:wince_version = '0.2.3'
 call jer_log#LogFunctions('jersuite').CFG('wince version ',
                                          \ g:wince_version)
 
@@ -269,12 +276,12 @@ source <sfile>:p:h:h/src/loclist.vim
 " Enforce correct statuslines
 source <sfile>:p:h:h/src/statusline.vim
 
-" Setup the resolver to run on the CursorHold autocmd event, after any changes to
-" the state. Use the priority value 0 - every other CursorHold callback's
+" Setup the resolver to run as a post-event callback, after any changes to
+" the state. Use the priority value 0 - every other post-event callback's
 " priority is decided by its relationship with the resolver
 if !exists('g:wince_resolve_chc')
     let g:wince_resolve_chc = 1
-    call jer_chc#Register(function('wince_resolve#Resolve'), [], 1, 0, 1, 0, 1)
+    call jer_pec#Register(function('wince_resolve#Resolve'), [], 1, 0, 1, 0, 1)
 endif
 
 augroup Wince

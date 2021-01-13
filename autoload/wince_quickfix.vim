@@ -27,9 +27,9 @@ function! wince_quickfix#ToOpen()
     " This wonkiness with the heights avoids Vim equalizing other windows'
     " sizes
     if g:wince_quickfix_top
-        execute 'noautocmd topleft copen ' . g:wince_quickfix_height
+        noautocmd silent execute 'topleft copen ' . g:wince_quickfix_height
     else
-        noautocmd botright copen 1
+        noautocmd silent botright copen 1
     endif
 
     execute 'noautocmd resize ' . g:wince_quickfix_height

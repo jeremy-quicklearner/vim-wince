@@ -61,8 +61,8 @@ if !s:Win.legacy
                                \function('wince_help#ToCloseLocHelp'),
                                \function('wince_help#ToIdentifyLocHelp'))
 
-    call jer_chc#Register(function('wince_help#UpdatePreResolve'), [], 0, -50, 1, 0, 1)
-    call jer_chc#Register(function('wince_help#UpdatePostResolve'), [], 0, 30, 1, 0, 1)
+    call jer_pec#Register(function('wince_help#UpdatePreResolve'), [], 0, -50, 1, 0, 1)
+    call jer_pec#Register(function('wince_help#UpdatePostResolve'), [], 0, 30, 1, 0, 1)
 
     if exists('g:wince_disable_help_mappings') && g:wince_disable_help_mappings
         call s:Log.CFG('Help uberwin mappings disabled')

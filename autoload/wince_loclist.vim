@@ -39,9 +39,9 @@ function! wince_loclist#ToOpen()
 
     " Open the location window
     if g:wince_loclist_top
-        execute 'noautocmd aboveleft lopen ' . g:wince_loclist_height
+        noautocmd silent execute 'aboveleft lopen ' . g:wince_loclist_height
     else
-        execute 'noautocmd belowright lopen ' . g:wince_loclist_height
+        noautocmd silent execute 'belowright lopen ' . g:wince_loclist_height
     endif
 
     " Since we opened the location window with noautocmd, &syntax was set
