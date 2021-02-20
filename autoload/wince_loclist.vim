@@ -101,6 +101,7 @@ endfunction
 " Callback that returns {'typename':'loclist','supwin':<id>} if the supplied
 " winid is for a location window that is not the location window of a help
 " window
+" TODO: fix in the case where help window is disabled
 function! wince_loclist#ToIdentify(winid)
     call s:Log.DBG('wince_loclist#ToIdentify ', a:winid)
     let locwinnr = win_id2win(a:winid)

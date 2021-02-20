@@ -6,9 +6,13 @@
 " know!
 let s:Log = jer_log#LogFunctions('wince-mappings')
 
-if exists('g:wince_disable_mappings') && g:wince_disable_mappings
+if exists('g:wince_disable_all_mappings') && g:wince_disable_all_mappings
     call s:Log.CFG('Mappings disabled')
     finish
+endif
+
+if !exists('g:wince_disabled_mappings')
+    let g:wince_disabled_mappings = {}
 endif
 
 " Map a command of the form <c-w><cmd> to run an Ex command with a count
@@ -36,6 +40,9 @@ function! s:MapCmd(cmds, exCmdName, allow0,
                  \ mapinselectmode, mapinterminalmode)
     call s:Log.DBG('Map ', a:cmds, ' to ', a:exCmdName)
     for cmd in a:cmds
+        if has_key(g:wince_disabled_mappings, cmd)
+            continue
+        endif
         call s:DefineMappings(cmd, a:exCmdName, a:allow0, a:mapinnormalmode, a:mapinvisualmode, a:mapinselectmode, a:mapinterminalmode)
     endfor
 endfunction

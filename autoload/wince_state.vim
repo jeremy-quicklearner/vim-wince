@@ -701,8 +701,10 @@ function! wince_state#AfterimageWindow(winid)
     let bufl = &l:list
     let bufsl = &l:statusline
     let bufcc = &l:colorcolumn
+    let bufcole = &l:conceallevel
+    let bufcocu = &l:concealcursor
     
-    call s:Log.VRB(' syntax: ', bufsyn, ', synmaxcol: ', bufsynmc, ', spelllang: ', bufspll, ', spellcapcheck: ', bufsplc, ', tabstop: ', bufts, ', wrap: ', bufw, ', list: ', bufl, ', statusline: ', bufsl, ', colorcolumn: ', bufcc)
+    call s:Log.VRB(' syntax: ' . bufsyn . ', synmaxcol: ' . bufsynmc . ', spelllang: ' . bufspll . ', spellcapcheck: ' . bufsplc . ', tabstop: ' . bufts . ', wrap: ' . bufw . ', list: ' . bufl . ', statusline: ' . bufsl . ', colorcolumn: ' . bufcc . ', conceallevel: ' . bufcole . ', concealcursor:' . bufcocu)
 
     " Preserve folds
     try
@@ -767,6 +769,8 @@ function! wince_state#AfterimageWindow(winid)
     let &l:list = bufl     
     let &l:statusline = bufsl    
     let &l:colorcolumn = bufcc    
+    let &l:conceallevel = bufcole
+    let &l:concealcursor = bufcocu
     call s:MaybeRedraw()
 
     " Restore cursor and scroll position
@@ -972,7 +976,9 @@ function! wince_state#ResizeHorizontal(winid, width, indirect)
         let otherwidth = s:Win.width(0)
         let oldwidth = s:Win.width(winnr)
         let newwidth = otherwidth + oldwidth - a:width
-        noautocmd silent execute newwidth . 'wincmd |'
+        if newwidth ># 0
+            noautocmd silent execute newwidth . 'wincmd |'
+        endif
     noautocmd silent execute winnr . 'wincmd w'
     let &winfixwidth = wasfixed
     call s:MaybeRedraw()
@@ -1020,7 +1026,9 @@ function! wince_state#ResizeVertical(winid, height, indirect)
         let otherheight = s:Win.height(0)
         let oldheight = s:Win.height(winnr)
         let newheight = otherheight + oldheight - a:height
-        noautocmd silent execute newheight . 'wincmd _'
+        if newheight ># 0
+            noautocmd silent execute newheight . 'wincmd _'
+        endif
     noautocmd silent execute winnr . 'wincmd w'
     let &winfixheight = wasfixed
     call s:MaybeRedraw()

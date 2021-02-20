@@ -9,17 +9,25 @@ let s:loaded = 0
 " See wince.vim
 let s:Log = jer_log#LogFunctions('wince-mappings')
 
+function! wince_map#DoAndRestoreMode(rhs, modechr)
+    call jer_mode#Detect(a:modechr)
+    let g:wince_map_mode = jer_mode#Retrieve()
+    execute a:rhs
+    call jer_mode#ForcePreserve(g:wince_map_mode)
+    call jer_mode#Restore()
+endfunction
+
 " This function is a helper for group definitions which want to define
 " mappings for adding, removing, showing, hiding, and jumping to their groups
 function! wince_map#MapUserOp(lhs, rhs)
     call s:Log.CFG('Map ', a:lhs, ' to ', a:rhs)
     for [mapchr, modechr] in [['n', 'n'], ['x', 'v'], ['s', 's'], ['t', 't']]
-        let mapcmd = mapchr .  'noremap <silent> ' .  a:lhs . ' ' .
-       \    '<c-w>:<c-u>call jer_mode#Detect("' . modechr .'")<cr>' .
-       \    '<c-w>:<c-u>let g:wince_map_mode=jer_mode#Retrieve()<cr>' .
-       \    '<c-w>:<c-u>' . a:rhs . '<cr>' .
-       \    '<c-w>:<c-u>call jer_mode#ForcePreserve(g:wince_map_mode)<cr>' .
-       \    '<c-w>:<c-u>call jer_mode#Restore()<cr>'
+        let mapcmd = mapchr .  'noremap <silent> ' . a:lhs . ' ' .
+       \    '<c-w>:<c-u>call wince_map#DoAndRestoreMode(''' .
+       \        a:rhs .
+       \    ''', ''' .
+       \        modechr .
+       \    ''')<cr>'
         execute mapcmd
     endfor
 endfunction
