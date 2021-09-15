@@ -10,7 +10,7 @@ function! s:Define(cmdname, wincmd,
                  \ dowithoutuberwins, dowithoutsubwins,
                  \ relyonresolver)
     call s:Log.DBG('Command: ', a:cmdname)
-    execute 'command! -nargs=? -count=1524607938 -complete=command ' .
+    execute 'command! -nargs=? -count=1524607938 ' .
    \        a:cmdname .
    \        ' call jer_mode#Detect("<args>") | '
    \        'call jer_mode#ForcePreserve(wince_cmd#Run(' .
@@ -29,7 +29,7 @@ endfunction
 
 function! s:DefineSpecial(cmdname, handler)
     call s:Log.DBG('Special command: ', a:cmdname)
-    execute 'command! -nargs=? -count=1524607938 -complete=command ' .
+    execute 'command! -nargs=? -count=1524607938 ' .
    \        a:cmdname .
    \        ' call jer_mode#Detect("<args>") | ' .
    \        'call jer_mode#ForcePreserve(wince_cmd#RunSpecial(' .
