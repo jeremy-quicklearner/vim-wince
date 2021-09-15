@@ -4,6 +4,7 @@
 " window engine to one of the custom commands from wince-commands.vim.
 " I did my best to cover all of them. If any slipped through, please let me
 " know!
+" TODO: Use <cmd> to avoid messing around with modes
 let s:Log = jer_log#LogFunctions('wince-mappings')
 
 if exists('g:wince_disable_all_mappings') && g:wince_disable_all_mappings
@@ -18,32 +19,41 @@ endif
 " Map a command of the form <c-w><cmd> to run an Ex command with a count
 function! s:DefineMappings(cmd, exCmd, allow0, mapinnormalmode, mapinvisualmode, mapinselectmode, mapinterminalmode)
     call s:Log.DBG('DefineMappings ', a:cmd, ', ', a:exCmd, ', [', a:allow0, ',', a:mapinnormalmode, ',', a:mapinvisualmode, ',', a:mapinselectmode, ',', a:mapinterminalmode, ']')
-    for [domap, mapchr, modechr] in [
-   \    [a:mapinnormalmode,   'n', 'n'],
-   \    [a:mapinvisualmode,   'x', 'v'],
-   \    [a:mapinselectmode,   's', 's'],
-   \    [a:mapinterminalmode, 't', 't']
-   \]
-        if domap
-            let mapcmd =  mapchr . 'noremap <silent> ' . a:cmd . ' ' .
-           \    '<c-w>:<c-u>execute wince_map#ProcessCounts(' .
-           \        a:allow0 .
-           \    ') . "' . a:exCmd . ' ' . modechr . '"<cr>'
-            execute mapcmd
-        endif
-    endfor
+    if a:mapinnormalmode
+        execute 'nnoremap <silent> ' . a:cmd .
+       \    ' :<c-u>execute wince_map#ProcessCounts(' .
+       \        a:allow0 .
+       \    ') . "' . a:exCmd . ' n"<cr>'
+    endif
+    if a:mapinvisualmode
+        execute 'xnoremap <silent> ' . a:cmd .
+       \    ' :<c-u>execute wince_map#ProcessCounts(' .
+       \        a:allow0 .
+       \    ') . "' . a:exCmd . ' v"<cr>'
+    endif
+    if a:mapinselectmode
+        execute 'snoremap <silent> ' . a:cmd .
+       \    ' :<c-u>execute wince_map#ProcessCounts(' .
+       \        a:allow0 .
+       \    ') . "' . a:exCmd . ' s"<cr>'
+    endif
+    if a:mapinterminalmode && exists(':tnoremap')
+         execute 'tnoremap <silent> ' . a:cmd .
+        \    ' <c-w>:<c-u>execute wince_map#ProcessCounts(' .
+        \        a:allow0 .
+        \    ') . "' . a:exCmd . ' t"<cr>'
+    endif
 endfunction
 
 " Create an Ex command and mappings that run a Ctrl-W command with flags
 function! s:MapCmd(cmds, exCmdName, allow0,
-                 \ mapinnormalmode, mapinvisualmode,
                  \ mapinselectmode, mapinterminalmode)
     call s:Log.DBG('Map ', a:cmds, ' to ', a:exCmdName)
     for cmd in a:cmds
         if has_key(g:wince_disabled_mappings, cmd)
             continue
         endif
-        call s:DefineMappings(cmd, a:exCmdName, a:allow0, a:mapinnormalmode, a:mapinvisualmode, a:mapinselectmode, a:mapinterminalmode)
+        call s:DefineMappings(cmd, a:exCmdName, a:allow0, 1, 1, a:mapinselectmode, a:mapinterminalmode)
     endfor
 endfunction
 
@@ -68,11 +78,10 @@ for idx in range(1,9)
    \    ['x', 'z',     'v', 'Z'],
    \    ['s', 'z',     's', 'Z']
    \]
-        let mapcmd = mapchr . 'noremap <silent> ' . lhs . idx . ' ' .
-       \    '<c-w>:<c-u>call jer_mode#Detect("' . modechr . '")<cr>' .
-       \    '<c-w>:<c-u>let g:wince_map_mode=jer_mode#Retrieve()<cr>' .
-       \    '<c-w>:<c-u>call WinceMapScan' . whichscan .'(' . idx . ')<cr>'
-        execute mapcmd
+        execute mapchr . 'noremap <silent> ' . lhs . idx . ' ' .
+       \    ':<c-u>call jer_mode#Detect("' . modechr . '")<cr>' .
+       \    ':<c-u>let g:wince_map_mode=jer_mode#Retrieve()<cr>' .
+       \    ':<c-u>call WinceMapScan' . whichscan .'(' . idx . ')<cr>'
     endfor
 endfor
 
@@ -166,78 +175,47 @@ endfunction
 " The tower of hacks ends here
 
 " Command mappings
-let s:allCmds = {
-\   'WinceOnly':                      ['<c-w>o','<c-w><c-o>'    ],
-\   'WinceDecreaseHeight':            ['<c-w>-'                 ],
-\   'WinceDecreaseWidth':             ['<c-w><'                 ],
-\   'WinceEqualize':                  ['<c-w>='                 ],
-\   'WinceExchange':                  ['<c-w>x','<c-w><c-x>'    ],
-\   'WinceGoDown':                    ['<c-w>j','<c-w><down>'   ],
-\   'WinceGoFirst':                   ['<c-w>t','<c-w><c-t>'    ],
-\   'WinceGoLast':                    ['<c-w>b','<c-w><c-b>'    ],
-\   'WinceGoLeft':                    ['<c-w>h','<c-w><left>'   ],
-\   'WinceGoNext':                    ['<c-w>w','<c-w><c-w>'    ],
-\   'WinceGoRight':                   ['<c-w>l','<c-w><right>'  ],
-\   'WinceGoUp':                      ['<c-w>k','<c-w><up>'     ],
-\   'WinceGotoPrevious':              ['<c-w>p','<c-w><c-p>'    ],
-\   'WinceIncreaseHeight':            ['<c-w>+'                 ],
-\   'WinceIncreaseWidth':             ['<c-w>>'                 ],
-\   'WinceMoveToBottomEdge':          ['<c-w>J'                 ],
-\   'WinceMoveToLeftEdge':            ['<c-w>H'                 ],
-\   'WinceMoveToNewTab':              ['<c-w>T'                 ],
-\   'WinceMoveToRightEdge':           ['<c-w>L'                 ],
-\   'WinceMoveToTopEdge':             ['<c-w>K'                 ],
-\   'WinceResizeHorizontal':          ['<c-w>_','<c-w><c-_>'    ],
-\   'WinceResizeHorizontalDefaultNop':['z<cr>'                  ],
-\   'WinceResizeVertical':            ['<c-w>\|'                ],
-\   'WinceReverseGoNext':             ['<c-w>W'                 ],
-\   'WinceReverseRotate':             ['<c-w>R'                 ],
-\   'WinceRotate':                    ['<c-w>r','<c-w><c-r>'    ],
-\   'WinceSplitHorizontal':           ['<c-w>s','<c-w>S','<c-s>'],
-\   'WinceSplitVertical':             ['<c-w>v','<c-w><c-v>'    ],
-\   'WinceSplitNew':                  ['<c-w>n','<c-w><c-n>'    ],
-\   'WinceSplitAlternate':            ['<c-w>^','<c-w><c-^>'    ],
-\   'WinceQuit':                      ['<c-w>q','<c-w><c-q>'    ],
-\   'WinceClose':                     ['<c-w>c'                 ],
-\   'WinceGotoPreview':               ['<c-w>P'                 ],
-\   'WinceSplitTag':                  ['<c-w>]','<c-w><c-]>'    ],
-\   'WinceSplitTagSelect':            ['<c-w>g]',               ],
-\   'WinceSplitTagJump':              ['<c-w>g<c-]>',           ],
-\   'WinceSplitFilename':             ['<c-w>f','<c-w><c-f>'    ],
-\   'WinceSplitFilenameLine':         ['<c-w>F',                ],
-\   'WincePreviewClose':              ['<c-w>z','<c-w><c-z>'    ],
-\   'WincePreviewTag':                ['<c-w>}'                 ],
-\   'WincePreviewTagJump':            ['<c-w>g}'                ],
-\   'WinceSplitSearchWord':           ['<c-w>i','<c-w><c-i>'    ],
-\   'WinceSplitSearchMacro':          ['<c-w>d','<c-w><c-d>'    ]
-\}
-
-let s:cmdsWithAllow0 = [
-\   'WinceExchange',
-\   'WinceGotoPrevious',
-\   'WinceResizeHorizontal',
-\   'WinceResizeVertical'
-\]
-
-
-let s:cmdsWithNormalModeMapping = keys(s:allCmds)
-let s:cmdsWithVisualModeMapping = keys(s:allCmds)
-" This matches Vim's native behaviour. Sticks out like a sore thumb, dooesn't
-" it?
-let s:cmdsWithSelectModeMapping = ['WinceResizeHorizontalDefuaultNop']
-let s:cmdsWithTerminalModeMapping = keys(s:allCmds)
-
-for cmdname in keys(s:allCmds)
-    call s:MapCmd(
-   \    s:allCmds[cmdname], cmdname,
-   \    index(s:cmdsWithAllow0,              cmdname) >=# 0,
-   \    index(s:cmdsWithNormalModeMapping,   cmdname) >=# 0,
-   \    index(s:cmdsWithVisualModeMapping,   cmdname) >=# 0,
-   \    index(s:cmdsWithSelectModeMapping,   cmdname) >=# 0,
-   \    index(s:cmdsWithTerminalModeMapping, cmdname) >=# 0
-   \)
-endfor
-
-" Special case: WinceGoLeft needs to be mapped to <bs>, but not in terminal mode
-call s:MapCmd(['<bs>'], 'WinceGoLeft', 0, 1, 1, 1, 0)
-
+call s:MapCmd(['<c-w>o','<c-w><c-o>'    ], 'WinceOnly',                 0, 0, 1)
+call s:MapCmd(['<c-w>-'                 ], 'WinceDecreaseHeight',       0, 0, 1)
+call s:MapCmd(['<c-w><'                 ], 'WinceDecreaseWidth',        0, 0, 1)
+call s:MapCmd(['<c-w>='                 ], 'WinceEqualize',             0, 0, 1)
+call s:MapCmd(['<c-w>x','<c-w><c-x>'    ], 'WinceExchange',             1, 0, 1)
+call s:MapCmd(['<c-w>j','<c-w><down>'   ], 'WinceGoDown',               0, 0, 1)
+call s:MapCmd(['<c-w>t','<c-w><c-t>'    ], 'WinceGoFirst',              0, 0, 1)
+call s:MapCmd(['<c-w>b','<c-w><c-b>'    ], 'WinceGoLast',               0, 0, 1)
+call s:MapCmd(['<c-w>h','<c-w><left>'   ], 'WinceGoLeft',               0, 0, 1)
+call s:MapCmd(['<c-w>w','<c-w><c-w>'    ], 'WinceGoNext',               0, 0, 1)
+call s:MapCmd(['<c-w>l','<c-w><right>'  ], 'WinceGoRight',              0, 0, 1)
+call s:MapCmd(['<c-w>k','<c-w><up>'     ], 'WinceGoUp',                 0, 0, 1)
+call s:MapCmd(['<c-w>p','<c-w><c-p>'    ], 'WinceGotoPrevious',         1, 0, 1)
+call s:MapCmd(['<c-w>+'                 ], 'WinceIncreaseHeight',       0, 0, 1)
+call s:MapCmd(['<c-w>>'                 ], 'WinceIncreaseWidth',        0, 0, 1)
+call s:MapCmd(['<c-w>J'                 ], 'WinceMoveToBottomEdge',     0, 0, 1)
+call s:MapCmd(['<c-w>H'                 ], 'WinceMoveToLeftEdge',       0, 0, 1)
+call s:MapCmd(['<c-w>T'                 ], 'WinceMoveToNewTab',         0, 0, 1)
+call s:MapCmd(['<c-w>L'                 ], 'WinceMoveToRightEdge',      0, 0, 1)
+call s:MapCmd(['<c-w>K'                 ], 'WinceMoveToTopEdge',        0, 0, 1)
+call s:MapCmd(['<c-w>_','<c-w><c-_>'    ], 'WinceResizeHorizontal',     1, 0, 1)
+call s:MapCmd(['z<cr>'            ], 'WinceResizeHorizontalDefaultNop', 1, 1, 1)
+call s:MapCmd(['<c-w>\|'                ], 'WinceResizeVertical',       1, 0, 1)
+call s:MapCmd(['<c-w>W'                 ], 'WinceReverseGoNext',        0, 0, 1)
+call s:MapCmd(['<c-w>R'                 ], 'WinceReverseRotate',        0, 0, 1)
+call s:MapCmd(['<c-w>r','<c-w><c-r>'    ], 'WinceRotate',               0, 0, 1)
+call s:MapCmd(['<c-w>s','<c-w>S','<c-s>'], 'WinceSplitHorizontal',      0, 0, 1)
+call s:MapCmd(['<c-w>v','<c-w><c-v>'    ], 'WinceSplitVertical',        0, 0, 1)
+call s:MapCmd(['<c-w>n','<c-w><c-n>'    ], 'WinceSplitNew',             0, 0, 1)
+call s:MapCmd(['<c-w>^','<c-w><c-^>'    ], 'WinceSplitAlternate',       0, 0, 1)
+call s:MapCmd(['<c-w>q','<c-w><c-q>'    ], 'WinceQuit',                 0, 0, 1)
+call s:MapCmd(['<c-w>c'                 ], 'WinceClose',                0, 0, 1)
+call s:MapCmd(['<c-w>P'                 ], 'WinceGotoPreview',          0, 0, 1)
+call s:MapCmd(['<c-w>]','<c-w><c-]>'    ], 'WinceSplitTag',             0, 0, 1)
+call s:MapCmd(['<c-w>g]',               ], 'WinceSplitTagSelect',       0, 0, 1)
+call s:MapCmd(['<c-w>g<c-]>',           ], 'WinceSplitTagJump',         0, 0, 1)
+call s:MapCmd(['<c-w>f','<c-w><c-f>'    ], 'WinceSplitFilename',        0, 0, 1)
+call s:MapCmd(['<c-w>F',                ], 'WinceSplitFilenameLine',    0, 0, 1)
+call s:MapCmd(['<c-w>z','<c-w><c-z>'    ], 'WincePreviewClose',         0, 0, 1)
+call s:MapCmd(['<c-w>}'                 ], 'WincePreviewTag',           0, 0, 1)
+call s:MapCmd(['<c-w>g}'                ], 'WincePreviewTagJump',       0, 0, 1)
+call s:MapCmd(['<c-w>i','<c-w><c-i>'    ], 'WinceSplitSearchWord',      0, 0, 1)
+call s:MapCmd(['<c-w>d','<c-w><c-d>'    ], 'WinceSplitSearchMacro',     0, 0, 1)
+call s:MapCmd(['<bs>'                   ], 'WinceGoLeft',               0, 1, 0)

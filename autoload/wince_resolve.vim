@@ -909,12 +909,3 @@ function! wince_resolve#Resolve()
         let s:resolveIsRunning = 0
     endtry
 endfunction
-
-" Since the resolver runs as a post-event callback, autocmd events
-" need to be explicitly signalled to it
-augroup WinceResolve
-    autocmd!
-    
-    " Use the TabEnter event to detect when a tab has been entered
-    autocmd TabEnter * let t:wince_resolvetabenteredcond = 1
-augroup END

@@ -2,20 +2,22 @@
 " See wince.vim
 let s:Log = jer_log#LogFunctions('wince-commands')
 
-function! s:Define(cmdname, wincmd, defaultcount,
-                          \ preservecursor,
-                          \ ifuberwindonothing, ifsubwingotosupwin,
-                          \ dowithoutuberwins, dowithoutsubwins,
-                          \ relyonresolver)
+" See comments in autoload/wince_cmd.vim for notes on the 1524607938 magic
+" number
+function! s:Define(cmdname, wincmd,
+                 \ preservecursor,
+                 \ ifuberwindonothing, ifsubwingotosupwin,
+                 \ dowithoutuberwins, dowithoutsubwins,
+                 \ relyonresolver)
     call s:Log.DBG('Command: ', a:cmdname)
-    execute 'command! -nargs=? -range=0 -complete=command ' . a:cmdname .
+    execute 'command! -nargs=? -count=1524607938 -complete=command ' .
+   \        a:cmdname .
    \        ' call jer_mode#Detect("<args>") | '
    \        'call jer_mode#ForcePreserve(wince_cmd#Run(' .
    \        '"' . a:cmdname . '",' .
    \        '"' . a:wincmd . '",' .
-   \        '<range>,<count>,' .
+   \        '<count>,' .
    \        'jer_mode#Retrieve(),' .
-   \        '"' . a:defaultcount . '",' .
    \        a:preservecursor . ',' .
    \        a:ifuberwindonothing . ',' .
    \        a:ifsubwingotosupwin . ',' .
@@ -27,11 +29,12 @@ endfunction
 
 function! s:DefineSpecial(cmdname, handler)
     call s:Log.DBG('Special command: ', a:cmdname)
-    execute 'command! -nargs=? -range=0 -complete=command ' . a:cmdname .
+    execute 'command! -nargs=? -count=1524607938 -complete=command ' .
+   \        a:cmdname .
    \        ' call jer_mode#Detect("<args>") | ' .
    \        'call jer_mode#ForcePreserve(wince_cmd#RunSpecial(' .
    \        '"' . a:cmdname . '",' .
-   \        '<range>,<count>,' .
+   \        '<count>,' .
    \        'jer_mode#Retrieve(),' .
    \        '"' . a:handler . '")) | ' .
    \        'call jer_mode#Restore()'
@@ -258,7 +261,7 @@ let s:cmdsThatRelyOnResolver = [
 
 for cmdname in keys(s:allNonSpecialCmds)
     call s:Define(
-   \    cmdname, s:allNonSpecialCmds[cmdname], '',
+   \    cmdname, s:allNonSpecialCmds[cmdname],
    \    index(s:cmdsThatPreserveCursorPos,  cmdname) >= 0,
    \    index(s:cmdsWithUberwinNop,         cmdname) >= 0,
    \    index(s:cmdsWithSubwinToSupwin,     cmdname) >= 0,

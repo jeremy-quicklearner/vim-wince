@@ -26,7 +26,7 @@ function! wince_loclist#ToOpen()
 
     " Fail if the location window is already open
     let locwinid = get(getloclist(supwinid, {'winid':0}), 'winid', -1)
-    if locwinid
+    if locwinid ># 0
         throw 'Window ' . supwinid . ' already has location window ' . locwinid
     endif
 
@@ -67,7 +67,7 @@ function! wince_loclist#ToClose()
 
     " Fail if the location window is already closed
     let locwinid = get(getloclist(supwinid, {'winid':0}), 'winid', -1)
-    if !locwinid
+    if locwinid <=# 0
         throw 'Location window for window ' . supwinid . ' does not exist'
     endif
 
@@ -130,10 +130,10 @@ function! wince_loclist#StatusLine()
     let statusline .= '%<'
 
     " Location list number
-    let statusline .= '%1*[%{wince_loclist#FieldForStatusLine("title")}]'
+    let statusline .= '%1*[' . wince_loclist#FieldForStatusLine("nr") . ']'
 
     " Location list title (from the command that generated the list)
-    let statusline .= '%1*[%{wince_loclist#FieldForStatusLine("nr")}]'
+    let statusline .= '%1*[' . wince_loclist#FieldForStatusLine("title") . ']'
 
     " Right-justify from now on
     let statusline .= '%=%<'

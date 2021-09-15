@@ -21,15 +21,23 @@ endfunction
 " mappings for adding, removing, showing, hiding, and jumping to their groups
 function! wince_map#MapUserOp(lhs, rhs)
     call s:Log.CFG('Map ', a:lhs, ' to ', a:rhs)
-    for [mapchr, modechr] in [['n', 'n'], ['x', 'v'], ['s', 's'], ['t', 't']]
+    let mapmodes = [['n', 'n'], ['x', 'v'], ['s', 's']]
+    for [mapchr, modechr] in mapmodes
         let mapcmd = mapchr .  'noremap <silent> ' . a:lhs . ' ' .
-       \    '<c-w>:<c-u>call wince_map#DoAndRestoreMode(''' .
+       \    ':<c-u>call wince_map#DoAndRestoreMode(''' .
        \        a:rhs .
        \    ''', ''' .
        \        modechr .
        \    ''')<cr>'
         execute mapcmd
     endfor
+
+    if exists(':tnoremap')
+        execute 'tnoremap <silent> ' . a:lhs . ' ' .
+       \    '<c-w>:<c-u>call wince_map#DoAndRestoreMode(''' .
+       \        a:rhs .
+       \    ''', ''t'')<cr>'
+    endif
 endfunction
 
 " Process v:count and v:count1 into a single count

@@ -89,8 +89,7 @@ endfunction
 " Callback that returns 'help' if the supplied winid is for the help window
 " and has no location list
 function! wince_help#ToIdentifyHelp(winid)
-    call s:Log.DBG('wince_help#ToIdentifyHelp ', a:winid)
-    if getwinvar(s:Win.id2win(a:winid), '&ft', '') ==? 'help' &&
+    if s:Win.getwinvar(a:winid, '&ft', '') ==? 'help' &&
    \   get(getloclist(a:winid, {'size':0}), 'size', 0) == 0
         return 'help'
     endif
@@ -187,14 +186,14 @@ endfunction
 function! wince_help#ToIdentifyLocHelp(winid)
     call s:Log.INF('wince_help#ToIdentifyLocHelp ', a:winid)
     if getwinvar(a:winid, '&ft', '') ==? 'help' &&
-   \   get(getloclist(a:winid, {'size':0}), 'size', 0) != 0
+   \   get(getloclist(a:winid, {'size':0}), 'size', 0) !=# 0
        return 'help'
     elseif getwininfo(a:winid)[0]['loclist']
         let thiswinnr = win_id2win(a:winid)
         for winnr in range(1, winnr('$'))
             if winnr != thiswinnr &&
            \   getwinvar(winnr, '&ft', '') ==? 'help' &&
-           \   get(getloclist(winnr, {'winid':0}), 'winid', -1) == a:winid
+           \   get(getloclist(winnr, {'winid':0}), 'winid', -1) ==# a:winid
                 return 'loclist'
             endif
         endfor
@@ -245,8 +244,8 @@ function! wince_help#UpdatePreResolve()
         endif
 
         let getloc = getloclist(winid, {'size':0, 'winid':-1})
-        let haslist = get(getloc, 'size', 0) != 0
-        let haswin = get(getloc, 'winid', -1) != 0
+        let haslist = get(getloc, 'size', 0) !=# 0
+        let haswin = get(getloc, 'winid', -1) ># 0
 
         if haslist && !haswin
             let curwinid = s:Win.getid()

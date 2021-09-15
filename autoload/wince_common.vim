@@ -8,6 +8,7 @@ endif
 let s:loaded = 0
 
 let s:Log = jer_log#LogFunctions('wince-common')
+let s:t = jer_util#Types()
 
 " Returns a data structure that encodes information about the window that the
 " cursor is in
@@ -339,7 +340,7 @@ endfunction
 function! wince_common#RestoreDimensions(windims)
     call s:Log.DBG('wince_common#RestoreDimensions ')
     let sorted = copy(keys(a:windims))
-    call filter(sorted, {idx, val -> wince_state#WinExists(val)})
+    call filter(sorted, 'wince_state#WinExists(v:val)')
     call sort(sorted, function('s:CompareWinidsByWinnr'))
     let supwinids = wince_model#SupwinIds()
     let supwinidsdict = {}
@@ -879,7 +880,7 @@ function! s:DoWithout(curwin, callback, args, nouberwins, nosubwins, reselect)
             let closeduberwingroups = wince_common#CloseUberwinsWithHigherPriorityThan('')
         endif
         try
-            if type(a:curwin) ==# v:t_dict
+            if type(a:curwin) ==# s:t.dict
                 let winid = wince_model#IdByInfo(a:curwin)
                 if wince_state#WinExists(winid)
                     call s:Log.DBG('Cursor window still exists. Moving to it.')
@@ -1012,11 +1013,11 @@ endfunction
 " each supwin, from the resolver. This would mean the user needs to configure
 " some sort of statusline template (with only one expansion item - the subwin
 " flags) which the resolver would then apply supwin-specific flags to. I deem
-" this solution too complicated, as it would surely cause trouble with statusline
-" plugins. The current solution using wince_user#SubwinFlagsForGlobalStatusline has
-" only one downside - performance. If the user has trouble with statusline
-" evaluation taking too long, they are free to remove the subwin flags from
-" their statusline.
+" this solution too complicated, as it would surely cause trouble with
+" statusline plugins. The current solution using
+" wince_user#SubwinFlagsForGlobalStatusline has only one downside - performance.
+" If the user has trouble with statusline evaluation taking too long, they are
+" free to remove the subwin flags from their statusline.
 function! wince_common#SubwinFlagByGroup(grouptypename)
     return wince_model#SubwinFlagByGroup(wince_state#GetCursorWinId(), a:grouptypename)
 endfunction

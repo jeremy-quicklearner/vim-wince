@@ -240,9 +240,9 @@ let s:loaded = 0
 JerCheckDep wince
 \           jersuite_core
 \           github.com/jeremy-quicklearner/vim-jersuite-core
-\           1.2.4
+\           1.2.5
 \           2.0.0
-let g:wince_version = '0.2.5'
+let g:wince_version = '0.2.6'
 call jer_log#LogFunctions('jersuite').CFG('wince version ',
                                          \ g:wince_version)
 
@@ -284,14 +284,16 @@ if !exists('g:wince_resolve_chc')
     call jer_pec#Register(function('wince_resolve#Resolve'), [], 1, 0, 1, 0, 1)
 endif
 
+" Since the resolver runs as a post-event callback, autocmd events
+" need to be explicitly signalled to it
 augroup Wince
     autocmd!
 
-    " When the resolver runs in a new tab, it should run as if the tab was entered
-    autocmd VimEnter,TabNew * let t:winresolvetabenteredcond = 1
-
     " Run the resolver when Vim is resized
     autocmd VimResized * call wince_resolve#Resolve()
+
+    " Use the TabEnter event to detect when a tab has been entered
+    autocmd TabEnter * let t:wince_resolvetabenteredcond = 1
 augroup END
 
 " TODO? raise an error in an 'after' script if any of these options have

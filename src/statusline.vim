@@ -22,7 +22,7 @@ augroup WinceStatusLine
     " Quickfix and Terminal windows have different statuslines that Vim sets
     " when they open or buffers enter them, so overwrite all non-default
     " statuslines after that happens
-    autocmd BufWinEnter,TerminalOpen * call s:RegisterCorrectStatusLines()
+    autocmd BufWinEnter * call s:RegisterCorrectStatusLines()
 
     " Netrw windows also have local statuslines that get set by some autocmd
     " someplace in the Vim runtime. Overwrite them as well.

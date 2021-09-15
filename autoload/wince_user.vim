@@ -8,6 +8,7 @@ let s:loaded = 0
 
 " See wince.vim
 let s:Log = jer_log#LogFunctions('wince-user')
+let s:t = jer_util#Types()
 
 " Resolver callback registration
 
@@ -326,7 +327,7 @@ endfunction
 function! wince_user#SubwinFlagsForGlobalStatusline()
     let flagsstr = ''
 
-    " Due to a bug in Vim, these functions sometimes throws E315 in terminal
+    " Due to a bug in Vim, these functions sometimes throw E315 in terminal
     " windows
     try
         call s:Log.DBG('Retrieving subwin flags string for current supwin')
@@ -1065,7 +1066,7 @@ endfunction
 
 function! s:GoInDirection(count, direction, startmode)
     call s:Log.DBG('GoInDirection ', a:count, ', ', a:direction, ' ', a:startmode)
-    if type(a:count) ==# v:t_string && empty(a:count)
+    if type(a:count) ==# s:t.string && empty(a:count)
         call s:Log.DBG('Defaulting count to 1')
         let thecount = 1
     else
@@ -1153,7 +1154,7 @@ endfunction
 " and model consistent. It is designed to rely on the resolver.
 function! wince_user#Only(count, startmode)
     call s:Log.INF('wince_user#Only ', a:count, ' ', a:startmode)
-    if type(a:count) ==# v:t_string && empty(a:count)
+    if type(a:count) ==# s:t.string && empty(a:count)
         let winid = wince_state#GetCursorWinId()
     else
         let thecount = a:count
@@ -1281,10 +1282,10 @@ function! s:ResizeGivenNoSubwins(width, height, preclosedim)
         if a:height ==# ''
             let finalh = ''
         endif
-        if type(a:width) ==# v:t_number && a:width <# 0
+        if type(a:width) ==# s:t.number && a:width <# 0
             let dow = 0
         endif
-        if type(a:height) ==# v:t_number && a:height <# 0
+        if type(a:height) ==# s:t.number && a:height <# 0
             let doh = 0
         endif
 

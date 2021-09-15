@@ -13,6 +13,7 @@ let s:loaded = 0
 " commands are implemented at this level.
 let s:Log = jer_log#LogFunctions('wince-state')
 let s:Win = jer_win#WinFunctions()
+let s:t = jer_util#Types()
 
 " Just for fun - lots of extra redrawing
 if !exists('g:wince_extra_redraw')
@@ -95,8 +96,7 @@ endfunction
 
 function! wince_state#WinIsTerminal(winid)
     call s:Log.DBG('wince_state#WinIsTerminal ', a:winid)
-    let winnr = s:Win.id2win(a:winid)
-    let isterm = winnr && s:Win.getwinvar(winnr, '&buftype') ==# 'terminal'
+    let isterm = s:Win.getwinvar(a:winid, '&buftype') ==# 'terminal'
     if isterm
         call s:Log.DBG('Window ', a:winid, ' is a terminal window')
     else
@@ -122,7 +122,7 @@ endfunction
 
 function! wince_state#GetWinDimensionsList(winids)
     call s:Log.DBG('wince_state#GetWinDimensionsList ', a:winids)
-    if type(a:winids) != v:t_list
+    if type(a:winids) != s:t.list
         throw 'given winids are not a list'
     endif
     let dim = []
@@ -152,7 +152,7 @@ function! wince_state#GetWinRelativeDimensions(winid, offset)
     if nr ==# 0
         throw 'no window with winid ' . a:winid
     endif
-    if type(a:offset) != v:t_number
+    if type(a:offset) != s:t.number
         throw 'offset is not a number'
     endif
     let dims = {
@@ -166,7 +166,7 @@ endfunction
 
 function! wince_state#GetWinRelativeDimensionsList(winids, offset)
     call s:Log.DBG('wince_state#GetWinRelativeDimensionsList ', a:winids, ' ', a:offset)
-    if type(a:winids) != v:t_list
+    if type(a:winids) != s:t.list
         throw 'given winids are not a list'
     endif
     let dim = []
@@ -219,7 +219,7 @@ endfunction
 " Generic Ctrl-W commands
 function! wince_state#Wincmd(count, cmd, usemode)
     call s:Log.INF('wince_state#Wincmd ', a:count, ' ', a:cmd, ' ', a:usemode)
-    if type(a:usemode) ==# v:t_dict && !empty(a:usemode)
+    if type(a:usemode) ==# s:t.dict && !empty(a:usemode)
         noautocmd call jer_mode#ForcePreserve(a:usemode)
         noautocmd call jer_mode#Restore()
     endif
@@ -233,7 +233,7 @@ function! wince_state#Wincmd(count, cmd, usemode)
 endfunction
 function! wince_state#SilentWincmd(count, cmd, usemode)
     call s:Log.INF('wince_state#SilentWincmd ', a:count, ' ', a:cmd, ' ', a:usemode)
-    if type(a:usemode) ==# v:t_dict && empty(a:usemode)
+    if type(a:usemode) ==# s:t.dict && empty(a:usemode)
         noautocmd call jer_mode#ForcePreserve(a:usemode)
         noautocmd call jer_mode#Restore()
     endif
@@ -284,7 +284,7 @@ function! wince_state#OpenUberwinsByGroupType(grouptype)
     endif
     
     let ToOpen = a:grouptype.toOpen
-    if type(ToOpen) != v:t_func
+    if type(ToOpen) != s:t.func
         throw 'Given group type has nonfunc toOpen member'
     endif
 
@@ -343,7 +343,7 @@ function! wince_state#CloseUberwinsByGroupType(grouptype)
     endif
     
     let ToClose = a:grouptype.toClose
-    if type(ToClose) != v:t_func
+    if type(ToClose) != s:t.func
         throw 'Given group type has nonfunc toClose member'
     endif
 
@@ -362,7 +362,7 @@ function! wince_state#OpenSubwinsByGroupType(supwinid, grouptype)
     endif
     
     let ToOpen = a:grouptype.toOpen
-    if type(ToOpen) != v:t_func
+    if type(ToOpen) != s:t.func
         throw 'Given group type has nonfunc toOpen member'
     endif
 
@@ -430,7 +430,7 @@ function! wince_state#CloseSubwinsByGroupType(supwinid, grouptype)
     endif
     
     let ToClose = a:grouptype.toClose
-    if type(ToClose) != v:t_func
+    if type(ToClose) != s:t.func
         throw 'Given group type has nonfunc toClose member'
     endif
 

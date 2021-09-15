@@ -20,7 +20,7 @@ function! wince_quickfix#ToOpen()
     call s:Log.INF('wince_quickfix#ToOpen')
     " Fail if the quickfix window is already open
     let qfwinid = get(getqflist({'winid':0}), 'winid', -1)
-    if qfwinid
+    if qfwinid ># 0
         throw 'Quickfix window already exists with ID ' . qfwinid
     endif
 
@@ -50,7 +50,7 @@ function! wince_quickfix#ToClose()
     call s:Log.INF('wince_quickfix#ToClose')
     " Fail if the quickfix window is already closed
     let qfwinid = get(getqflist({'winid':0}), 'winid', -1)
-    if !qfwinid
+    if qfwinid <=# 0
         throw 'Quickfix window is already closed'
     endif
 
@@ -137,7 +137,7 @@ endfunction
 " See comment on SessionLoadPost autocmd below
 function! wince_quickfix#CloseDangling()
     let qfwinid = get(getqflist({'winid':0}), 'winid', -1)
-    while qfwinid
+    while qfwinid ># 0
         call s:Log.INF('Closing dangling window ', qfwinid)
         cclose
         let qfwinid = get(getqflist({'winid':0}), 'winid', -1)

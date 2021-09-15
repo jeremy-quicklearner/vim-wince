@@ -8,6 +8,7 @@ let s:loaded = 0
 
 " See wince.vim
 let s:Log = jer_log#LogFunctions('wince-model')
+let s:t = jer_util#Types()
 
 " g:wince_tabenterpreresolvecallbacks = [
 "     <funcref>
@@ -161,7 +162,7 @@ endfunction
 " Callback manipulation
 function! s:AddTypedCallback(type, callback)
     call s:Log.DBG('Callback: ', a:type, ', ', a:callback)
-    if type(a:callback) != v:t_func
+    if type(a:callback) != s:t.func
         throw 'Callback is not a function'
     endif
     if !exists('g:wince_' . a:type . 'callbacks')
@@ -194,7 +195,7 @@ endfunction
 function! wince_model#AssertUberwinGroupTypeExists(grouptypename)
     call s:Log.DBG('wince_model#AssertUberwinGroupTypeExists ', a:grouptypename)
     let item = get(g:wince_uberwingrouptype, a:grouptypename)
-    if type(item) !=# v:t_dict
+    if type(item) !=# s:t.dict
         throw 'nonexistent uberwin group type ' . a:grouptypename
     endif
     return item
@@ -214,68 +215,68 @@ function! wince_model#AddUberwinGroupType(name, typenames, statuslines,
                                        \widths, heights, toOpen, toClose,
                                        \toIdentify)
     " All parameters must be of the correct type
-    if type(a:name) != v:t_string
+    if type(a:name) != s:t.string
         throw 'name must be a string'
     endif
-    if type(a:typenames) != v:t_list
+    if type(a:typenames) != s:t.list
         throw 'typenames must be a list'
     endif
     for elem in a:typenames
-        if type(elem) != v:t_string
+        if type(elem) != s:t.string
             throw 'typenames must be a list of strings'
         endif
     endfor
-    if type(a:statuslines) != v:t_list
+    if type(a:statuslines) != s:t.list
         throw 'statuslines must be a list'
     endif
     for elem in a:statuslines
-        if type(elem) != v:t_string
+        if type(elem) != s:t.string
             throw 'statuslines must be a list of strings'
         endif
     endfor
-    if type(a:flag) != v:t_string
+    if type(a:flag) != s:t.string
         throw 'flag must be a string'
     endif
-    if type(a:hidflag) != v:t_string
+    if type(a:hidflag) != s:t.string
         throw 'hidflag must be a string'
     endif
-    if type(a:flagcol) != v:t_number ||  a:flagcol > 9 || a:flagcol < 1
+    if type(a:flagcol) != s:t.number ||  a:flagcol > 9 || a:flagcol < 1
        throw 'flagcol must be a number between 1-9 inclusive'
     endif
-    if type(a:priority) != v:t_number || a:priority <=# 0
+    if type(a:priority) != s:t.number || a:priority <=# 0
         throw 'priority must be a positive number'
     endif
-    if type(a:canHaveLoclist) != v:t_list
+    if type(a:canHaveLoclist) != s:t.list
         throw 'canHaveLoclist must be a list'
     endif
     for elem in a:canHaveLoclist
-        if type(elem) != v:t_number || elem < 0 || elem > 1
+        if type(elem) != s:t.number || elem < 0 || elem > 1
             throw 'canHaveLoclist must be a list of 0s and 1s'
         endif
     endfor
-    if type(a:widths) != v:t_list
+    if type(a:widths) != s:t.list
         throw 'widths must be a list'
     endif
     for elem in a:widths
-        if type(elem) != v:t_number || elem < -1
+        if type(elem) != s:t.number || elem < -1
             throw 'widths must be a list of numbers greater than -2'
         endif
     endfor
-    if type(a:heights) != v:t_list
+    if type(a:heights) != s:t.list
         throw 'heights must be a list'
     endif
     for elem in a:heights
-        if type(elem) != v:t_number || elem < -1
+        if type(elem) != s:t.number || elem < -1
             throw 'heights must be a list of numbers greater than -2'
         endif
     endfor
-    if type(a:toOpen) != v:t_func
+    if type(a:toOpen) != s:t.func
         throw 'toOpen must be a function'
     endif
-    if type(a:toClose) != v:t_func
+    if type(a:toClose) != s:t.func
         throw 'toClose must be a function'
     endif
-    if type(a:toIdentify) != v:t_func
+    if type(a:toIdentify) != s:t.func
         throw 'toIdentify must be a function'
     endif
 
@@ -331,7 +332,7 @@ endfunction
 function! wince_model#AssertSubwinGroupTypeExists(grouptypename)
     call s:Log.DBG('wince_model#AssertSubwinGroupTypeExists ', a:grouptypename)
     let item = get(g:wince_subwingrouptype, a:grouptypename)
-    if type(item) !=# v:t_dict
+    if type(item) !=# s:t.dict
         throw 'nonexistent subwin group type ' . a:grouptypename
     endif
     return item
@@ -356,79 +357,79 @@ function! wince_model#AddSubwinGroupType(name, typenames, statuslines,
                                       \widths, heights,
                                       \toOpen, toClose, toIdentify)
     " All parameters must be of the correct type
-    if type(a:name) != v:t_string
+    if type(a:name) != s:t.string
         throw 'name must be a string'
     endif
-    if type(a:typenames) != v:t_list
+    if type(a:typenames) != s:t.list
         throw 'typenames must be a list'
     endif
-    if type(a:statuslines) != v:t_list
+    if type(a:statuslines) != s:t.list
         throw 'statuslines must be a list'
     endif
     for elem in a:statuslines
-        if type(elem) != v:t_string
+        if type(elem) != s:t.string
             throw 'statuslines must be a list of strings'
         endif
     endfor
     for elem in a:typenames
-        if type(elem) != v:t_string
+        if type(elem) != s:t.string
             throw 'typenames must be a list of strings'
         endif
     endfor
-    if type(a:flag) != v:t_string
+    if type(a:flag) != s:t.string
         throw 'flag must be a string'
     endif
-    if type(a:hidflag) != v:t_string
+    if type(a:hidflag) != s:t.string
         throw 'hidflag must be a string'
     endif
-    if type(a:flagcol) != v:t_number ||  a:flagcol > 9 || a:flagcol < 1
+    if type(a:flagcol) != s:t.number ||  a:flagcol > 9 || a:flagcol < 1
        throw 'flagcol must be a number between 1-9 inclusive'
     endif
-    if type(a:priority) != v:t_number || a:priority <= 0
+    if type(a:priority) != s:t.number || a:priority <= 0
         throw 'priority must be a positive number'
     endif
-    if type(a:afterimaging) != v:t_list
+    if type(a:afterimaging) != s:t.list
         throw 'afterimaging must be a list'
     endif
     for elem in a:afterimaging
-        if type(elem) != v:t_number || elem < 0 || elem > 1
+        if type(elem) != s:t.number || elem < 0 || elem > 1
             throw 'afterimaging must be a list of 1s or 0s'
         endif
     endfor
-    if type(a:canHaveLoclist) != v:t_list
+    if type(a:canHaveLoclist) != s:t.list
         throw 'canHaveLoclist must be a list'
     endif
     for elem in a:canHaveLoclist
-        if type(elem) != v:t_number || elem < 0 || elem > 1
+        if type(elem) != s:t.number || elem < 0 || elem > 1
             throw 'canHaveLoclist must be a list of 0s and 1s'
         endif
     endfor
-    if type(a:stompWithBelowRight) != v:t_number || elem < 0 || elem > 1
+    if type(a:stompWithBelowRight) != s:t.number || elem < 0 || elem > 1
         throw 'stompWithBelowRight must be a 0 or 1'
     endif
-    if type(a:widths) != v:t_list
+    if type(a:widths) != s:t.list
         throw 'widths must be a list'
     endif
     for elem in a:widths
-        if type(elem) != v:t_number || elem < -1
+        if type(elem) != s:t.number || elem < -1
             throw 'widths must be a list of numbers greater than -2'
         endif
     endfor
-    if type(a:heights) != v:t_list
+    if type(a:heights) != s:t.list
         throw 'heights must be a list'
     endif
     for elem in a:heights
-        if type(elem) != v:t_number || elem < -1
+        if type(elem) != s:t.number || elem < -1
             throw 'heights must be a list of numbers greater than -2'
         endif
     endfor
-    if type(a:toOpen) != v:t_func
+    if type(a:toOpen) != s:t.func
         throw 'toOpen must be a function'
     endif
-    if type(a:toClose) != v:t_func
+    if type(a:toClose) != s:t.func
         throw 'toClose must be a function'
     endif
-    if type(a:toIdentify) != v:t_func
+    if type(a:toIdentify) != s:t.func
         throw 'toIdentify must be a function'
     endif
 
@@ -897,7 +898,7 @@ endfunction
 function! s:ValidateNewWinids(winids, explen)
     call s:Log.DBG('ValidateNewWinids ', a:winids, ' ', a:explen)
     " Validate that winids is a list
-    if type(a:winids) != v:t_list
+    if type(a:winids) != s:t.list
         throw 'expected list of winids but got param of type ' . type(a:winids)
     endif
 
@@ -911,7 +912,7 @@ function! s:ValidateNewWinids(winids, explen)
     " All winids must be numbers that aren't already in the model
     " somewhere
     for winid in a:winids
-        if type(winid) != v:t_number
+        if type(winid) != s:t.number
             throw 'winid ' . winid . ' is not a number'
         endif
         if has_key(t:wince_all, winid)
@@ -933,13 +934,13 @@ endfunction
 " someplace
 function! s:ValidateNewDimensions(nr, w, h)
     call s:Log.DBG('ValidateNewDimensions ', ' [', a:nr, ',', a:w, ',', a:h, ']')
-    if type(a:nr) !=# v:t_number || (a:nr !=# -1 && a:nr <=# 0)
+    if type(a:nr) !=# s:t.number || (a:nr !=# -1 && a:nr <=# 0)
         throw "nr must be a positive number or -1"
     endif
-    if type(a:w) !=# v:t_number || a:w <# -1
+    if type(a:w) !=# s:t.number || a:w <# -1
         throw "w must be at least -1"
     endif
-    if type(a:h) !=# v:t_number || a:h <# -1
+    if type(a:h) !=# s:t.number || a:h <# -1
         throw "h must be at least -1"
     endif
 endfunction
@@ -968,7 +969,7 @@ let s:defaultdims = {'nr': -1, 'w': -1, 'h': -1}
 let s:dimkeys = keys(s:defaultdims)
 function! s:ValidateNewUberwinDimensionsList(grouptypename, dims)
     call s:Log.DBG('ValidateNewUberwinDimensionsList ', a:grouptypename, ' ', a:dims)
-    if type(a:dims) !=# v:t_list
+    if type(a:dims) !=# s:t.list
         throw 'given dimensions list is not a list'
     endif
     
@@ -996,7 +997,7 @@ function! s:ValidateNewUberwinDimensionsList(grouptypename, dims)
         "   them have non-dummy dimensions. At the moment, I see no reason why
         "   that would happen
         let typename = typenames[typeidx]
-        if type(dim) !=# v:t_dict
+        if type(dim) !=# s:t.dict
             throw 'given dimensions are not a dict'
         endif
         for key in s:dimkeys
@@ -1012,13 +1013,13 @@ endfunction
 " Validate dimensions of a subwin to be added to the model someplace
 function! s:ValidateNewSubwinDimensions(grouptypename, typename, relnr, w, h)
     call s:Log.DBG('ValidateNewSubwinDimensions ', a:grouptypename, ':', a:typename, ' [', a:relnr, ',', a:w, ',', a:h, ']')
-    if type(a:relnr) !=# v:t_number
+    if type(a:relnr) !=# s:t.number
         throw "relnr must be a number"
     endif
-    if type(a:w) !=# v:t_number || a:w <# -1
+    if type(a:w) !=# s:t.number || a:w <# -1
         throw "w must be at least -1"
     endif
-    if type(a:h) !=# v:t_number || a:h <# -1
+    if type(a:h) !=# s:t.number || a:h <# -1
         throw "h must be at least -1"
     endif
     let [grouptype, typeidx] =  wince_model#AssertSubwinTypeExists(a:grouptypename, a:typename)
@@ -1041,7 +1042,7 @@ let s:defaultreldims = {'relnr': 0, 'w': -1, 'h': -1}
 let s:reldimkeys = keys(s:defaultreldims)
 function! s:ValidateNewSubwinDimensionsList(grouptypename, dims)
     call s:Log.DBG('ValidateNewSubwinDimensionsList ', a:grouptypename, ' ', a:dims)
-    if type(a:dims) !=# v:t_list
+    if type(a:dims) !=# s:t.list
         throw 'given subwin dimensions list is not a list'
     endif
     let typenames = g:wince_subwingrouptype[a:grouptypename].typenames
@@ -1068,7 +1069,7 @@ function! s:ValidateNewSubwinDimensionsList(grouptypename, dims)
         "   them have non-dummy dimensions. At the moment, I see no reason why
         "   that would happen
         let typename = typenames[typeidx]
-        if type(dim) !=# v:t_dict
+        if type(dim) !=# s:t.dict
             throw 'given subwin dimensions are not a dict'
         endif
         for key in s:reldimkeys
@@ -1121,7 +1122,7 @@ function! wince_model#AssertUberwinGroupExists(grouptypename)
     call s:EnsureModelExists()
     call wince_model#AssertUberwinGroupTypeExists(a:grouptypename)
     let group = get(t:wince_uberwin, a:grouptypename)
-    if type(group) !=# v:t_dict
+    if type(group) !=# s:t.dict
         throw 'nonexistent uberwin group ' . a:grouptypename
     endif
     return group
@@ -1159,7 +1160,7 @@ function! wince_model#ShownUberwinGroupExists(grouptypename)
     call s:Log.DBG('wince_model#ShownUberwinGroupExists ', a:grouptypename)
     call s:EnsureModelExists()
     let group = get(t:wince_uberwin, a:grouptypename)
-    if type(group) !=# v:t_dict
+    if type(group) !=# s:t.dict
         return 0
     endif
     return !group.hidden
@@ -1344,7 +1345,7 @@ function! wince_model#AssertSupwinExists(winid)
     call s:Log.DBG('wince_model#AssertSupwinExists ', a:winid)
     call s:EnsureModelExists()
     let supwin = get(t:wince_supwin, a:winid)
-    if type(supwin) !=# v:t_dict
+    if type(supwin) !=# s:t.dict
         throw 'nonexistent supwin ' . a:winid
     endif
     return supwin
@@ -1386,7 +1387,7 @@ function! wince_model#AssertSubwinGroupExists(supwinid, grouptypename)
     let supwin = wince_model#AssertSupwinExists(a:supwinid)
     call wince_model#AssertSubwinGroupTypeExists(a:grouptypename)
     let subwin = get(supwin.subwin, a:grouptypename)
-    if type(subwin) !=# v:t_dict
+    if type(subwin) !=# s:t.dict
         throw 'supwin ' . a:supwinid . ' has no subwin group of type ' . a:grouptypename
     endif
     return subwin
@@ -1423,11 +1424,11 @@ function! wince_model#ShownSubwinGroupExists(supwinid, grouptypename)
     call s:Log.DBG('wince_model#ShownSubwinGroupExists ', a:supwinid, ':', a:grouptypename)
     call s:EnsureModelExists()
     let supwin = get(t:wince_supwin, a:supwinid, 0)
-    if type(supwin) !=# v:t_dict
+    if type(supwin) !=# s:t.dict
         return 0
     endif
     let group = get(supwin.subwin, a:grouptypename)
-    if type(group) !=# v:t_dict
+    if type(group) !=# s:t.dict
         return 0
     endif
     return !group.hidden
@@ -1456,7 +1457,7 @@ function! s:AssertSubwinidIsInSubwinList(subwinid)
     call s:Log.DBG('AssertSubwinidIsInSubwinList ', a:subwinid)
     call s:EnsureModelExists()
     let subwin = get(t:wince_subwin, a:subwinid)
-    if type(subwin) !=# v:t_dict
+    if type(subwin) !=# s:t.dict
         throw 'subwin id ' . a:subwinid . ' not in subwin list'
     endif
     return subwin
@@ -1632,7 +1633,7 @@ function! wince_model#RemoveSubwins(supwinid, grouptypename)
     call s:Log.INF('wince_model#RemoveSubwins ', a:supwinid, ':', a:grouptypename)
     let groups = wince_model#AssertSupwinExists(a:supwinid).subwin
     let group = get(groups, a:grouptypename, 0)
-    if type(group) != v:t_dict
+    if type(group) != s:t.dict
         throw 'No subwin ' . a:supwinid . ':' . a:grouptypename
     endif
     if !group.hidden

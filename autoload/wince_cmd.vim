@@ -9,36 +9,32 @@ let s:loaded = 0
 
 let s:Log = jer_log#LogFunctions('wince-commands')
 
-function! wince_cmd#SanitizeRange(cmdname, range, count, defaultcount)
-    call s:Log.DBG('SanitizeRange ', a:cmdname, ', [', a:range, ',', a:count, ',', a:defaultcount, ']')
-    if a:range ==# 0
-        call s:Log.VRB('Using default count ', a:defaultcount)
-        return a:defaultcount
+" Using <range> is the natural way to check if a command's given Count is
+" defaulted... but <range> is only supported as of Vim 8.0.1089. To support
+" earlier versions, the magic number 1524607938 is used to pass the default.
+" If anyone ever uses Wince at a large enough scale that this is the genuine
+" count they wish to pass to a command, I'd be very surprised
+function! wince_cmd#DefaultCount(cmdname, count)
+    call s:Log.DBG('DefaultCount ', a:cmdname, ', ', a:count)
+    if a:count ==# 1524607938
+        call s:Log.VRB('Defaulting count to empty string')
+        return ''
     endif
 
-    if a:range ==# 1
-        call s:Log.VRB('Using given count ', a:count)
-        return a:count
-    endif
-     
-    if a:range ==# 2
-        throw 'Range not allowed for ' . a:cmdname
-    endif
-
-    throw 'Invalid <range> ' . a:range
+    call s:Log.VRB('Using given count ', a:count)
+    return a:count
 endfunction
 
-function! wince_cmd#Run(cmdname, wincmd, range, count, startmode,
-                       \ defaultcount,
+function! wince_cmd#Run(cmdname, wincmd, count, startmode,
                        \ preservecursor,
                        \ ifuberwindonothing,
                        \ ifsubwingotosupwin,
                        \ dowithoutuberwins,
                        \ dowithoutsubwins,
                        \ relyonresolver)
-    call s:Log.INF('wince_cmd#Run ' . a:cmdname . ', ' . a:wincmd . ', [' . a:range . ',' . a:count . ',' . string(a:startmode) . ',' . a:defaultcount . ',' . a:preservecursor . ',' . a:ifuberwindonothing . ',' . a:ifsubwingotosupwin . ',' . a:dowithoutuberwins . ',' . a:dowithoutsubwins . ',' . a:relyonresolver . ']')
+    call s:Log.INF('wince_cmd#Run ' . a:cmdname . ', ' . a:wincmd . ', [' . a:count . ',' . string(a:startmode) . ',' . a:preservecursor . ',' . a:ifuberwindonothing . ',' . a:ifsubwingotosupwin . ',' . a:dowithoutuberwins . ',' . a:dowithoutsubwins . ',' . a:relyonresolver . ']')
     try
-        let opcount = wince_cmd#SanitizeRange(a:cmdname, a:range, a:count, a:defaultcount)
+        let opcount = wince_cmd#DefaultCount(a:cmdname, a:count)
     catch /.*/
         call s:Log.ERR(v:exception)
         return a:startmode
@@ -53,10 +49,10 @@ function! wince_cmd#Run(cmdname, wincmd, range, count, startmode,
                              \ a:relyonresolver)
 endfunction
 
-function! wince_cmd#RunSpecial(cmdname, range, count, startmode, handler)
-    call s:Log.INF('wince_cmd#RunSpecial ', a:cmdname, ', [', a:range, ',', a:count, ',', a:startmode, '], ', a:handler)
+function! wince_cmd#RunSpecial(cmdname, count, startmode, handler)
+    call s:Log.INF('wince_cmd#RunSpecial ', a:cmdname, ', [', a:count, ',', a:startmode, '], ', a:handler)
     try
-        let opcount = wince_cmd#SanitizeRange(a:cmdname, a:range, a:count, '')
+        let opcount = wince_cmd#DefaultCount(a:cmdname, a:count)
         let Handler = function(a:handler)
 
         return Handler(opcount, a:startmode)
