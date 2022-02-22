@@ -16,7 +16,7 @@ endif
 " This helper is used here and also in the help uberwin
 function! wince_loclist#FieldForStatusLine(fieldname)
     call s:Log.DBG('wince_loclist#FieldForStatusLine')
-    return jer_util#SanitizeForStatusLine('', getloclist(win_getid(),{a:fieldname:0})[a:fieldname])
+    return jer_util#SanitizeForStatusLine('', getloclist(g:statusline_winid,{a:fieldname:0})[a:fieldname])
 endfunction
 
 " Callback that opens the location window for the current window

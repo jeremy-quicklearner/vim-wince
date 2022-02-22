@@ -76,7 +76,7 @@ endfunction
 " one window
 " name:                The name of the subwin group type
 " typenames:           The names of the subwin types in the group
-" statuslines:         The statusline strings of the uberwin types in the group
+" statuslines:         The statusline strings of the subwin types in the group
 " flag:                Flag to insert into the statusline of the supwin of subwins of
 "                      types in this group type when the subwins are shown
 " hidflag:             Flag to insert into the statusline of the supwin of subwins of
@@ -88,8 +88,8 @@ endfunction
 " afterimaging:        List of flags for each subwin type in the group. If true,
 "                      afterimage
 "                      subwins of that type when they and their supwin lose focus
-" canHaveLoclist:      Flag (one for each uberwin type in the group) signifying
-"                      whether uberwins of that type are allowed to have location lists
+" canHaveLoclist:      Flag (one for each subwin type in the group) signifying
+"                      whether subwins of that type are allowed to have location lists
 " stompWithBelowRight: Value to use for the the 'splitbelow' and 'splitright'
 "                      options when bypassing ToClose and closing windows of
 "                      this group type directly. Set this to 0 if your subwin
