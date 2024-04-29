@@ -212,10 +212,10 @@ function! wince_help#HelpLocStatusLine()
     let statusline .= '%<'
 
     " Location list number
-    let statusline .= '%1*[%{wince_loclist#FieldForStatusLine("title")}]'
+    let statusline .= '%1*[' . wince_loclist#FieldForStatusLine("nr") . ']'
 
     " Location list title (from the command that generated the list)
-    let statusline .= '%1*[%{wince_loclist#FieldForStatusLine("nr")}]'
+    let statusline .= '%1*[' . wince_loclist#FieldForStatusLine("title") . ']'
 
     " Right-justify from now on
     let statusline .= '%=%<'
