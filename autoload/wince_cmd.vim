@@ -41,12 +41,12 @@ function! wince_cmd#Run(cmdname, wincmd, count, startmode,
     endtry
 
     return wince_user#DoCmdWithFlags(a:wincmd, opcount, a:startmode,
-                             \ a:preservecursor,
-                             \ a:ifuberwindonothing,
-                             \ a:ifsubwingotosupwin,
-                             \ a:dowithoutuberwins,
-                             \ a:dowithoutsubwins,
-                             \ a:relyonresolver)
+                                    \ a:preservecursor,
+                                    \ a:ifuberwindonothing,
+                                    \ a:ifsubwingotosupwin,
+                                    \ a:dowithoutuberwins,
+                                    \ a:dowithoutsubwins,
+                                    \ a:relyonresolver)
 endfunction
 
 function! wince_cmd#RunSpecial(cmdname, count, startmode, handler)

@@ -1,14 +1,25 @@
 " Wince dictates that some windows have non-default status lines. It defers to
 " the default by returning an empty string that won't supersede the global
 " default statusline
+let s:Win = jer_win#WinFunctions()
 
 " TODO: Someone may want different supwins to have different statuslines.
 " Store supwin statuslines in the model and write a setter in the user
 " operations
 function! s:CorrectAllStatusLines()
-    noautocmd silent call jer_util#WinDo('',
-   \    'let &l:statusline = wince_user#NonDefaultStatusLine()'
-   \)
+    if s:Win.legacy
+        noautocmd silent call jer_util#WinDo('',
+       \    'let &l:statusline = wince_user#NonDefaultStatusLine()'
+       \)
+    else
+        for winid in wince_state#GetWinidsByCurrentTab()
+            call setwinvar(winid, '&statusline',
+           \    wince_model#StatusLineByInfo(
+           \        wince_model#InfoById(winid)
+           \    )
+           \)
+        endfor
+    endif
 endfunction
 
 " Register the above function as a one-time post-event callback
