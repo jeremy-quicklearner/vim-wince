@@ -463,11 +463,13 @@ function! s:RestoreSigns(winid, signs)
     call s:Log.VRB('RestoreSigns ', a:winid, ' ...')
     call s:Log.VRB('Preserved signs: ', a:signs)
     let bufnr = s:Win.bufnr(a:winid)
-    for [linestr, idstr, namestr] in a:signs
+    for [linestr, idstr, namestr, prioritystr] in a:signs
         let signid = substitute(idstr, '^.*id=\(\d*\).*$', '\1', '')
         let signname = substitute(namestr, '^.*name=\(.*\).*$', '\1', '')
         let signline = substitute(linestr, '^.*line=\(\d*\).*$', '\1', '')
+        let priority = substitute(prioritystr, '^.*priority=\(\d*\).*$', '\1', '')
         let cmd =  'sign place ' . signid .
+       \           ' priority=' . priority .
        \           ' line=' . signline .
        \           ' name=' . signname .
        \           ' buffer=' . bufnr
